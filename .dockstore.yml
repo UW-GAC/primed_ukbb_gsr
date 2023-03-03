@@ -1,4 +1,4 @@
-version: 0.1
+version: 1.2
 workflows:
    - name: download_pan_ukbb
      subclass: WDL
