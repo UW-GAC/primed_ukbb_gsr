@@ -1,0 +1,7 @@
+version: 0.1
+workflows:
+   - name: download_pan_ukbb
+     subclass: WDL
+     primaryDescriptorPath: /download_pan_ukbb.wdl
+     testParameterFiles:
+         - /download_pan_ukbb.json
