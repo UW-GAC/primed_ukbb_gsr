@@ -22,13 +22,23 @@ library(argparser, quietly = TRUE) # execute script from console
 
 # identify which phenotype you want to analyze
 p <- arg_parser("Pan UKBB GSR Download")
+
 p <- add_argument(parser = p,
                   arg = "--phenocode",
                   type = "numeric",
                   nargs = Inf,
                   help = "Identify the unique code of the phenotype(s) as described in the Pan-UK Biobank phenotype manifest.")
+
+p <- add_argument(parser = p,
+                  arg = "--population",
+                  type = "character",
+                  default = "all_available",
+                  nargs = Inf,
+                  help = "Identify the specific population(s) for which you want the Pan-UK Biobank GSR data. If you list multiple phenotypes, then data will be restricted to these populations for every listed phenotype. Confirm that the population(s) of interest have data for your phenotype(s) of interest using the Pan-UK Biobank phenotype manifest.")
+
 argv <- parse_args(parser = p)
 phenocode_list <- argv$phenocode
+population_list <- argv$population
 
 
 # set global timeout options
@@ -206,8 +216,8 @@ for (input in phenocode_list) {
   
   # Label step of the download
   print(paste0("Beginning download of <", phenotype_name, "> dataset from Pan UKBB."))
-  
-  
+
+
   # download the GSR data pertaining to the chosen phenotype
   (url_PHE <- paste0(url, gsub("s3://pan-ukb-us-east-1/", "", phenotype_info$aws_path)))
   data_PHE <- read_AWS(url_PHE)
@@ -245,20 +255,22 @@ for (input in phenocode_list) {
   metaHQ_pop <- c("af_meta_hq", "af_cases_meta_hq", "af_controls_meta_hq", "beta_meta_hq", "se_meta_hq", "pval_meta_hq", "pval_heterogeneity_hq", "pval_log10_meta_hq")
   key_meta <- c("effect_allele_freq", "eaf_case", "eaf_ctrl", "beta", "se", "p_value", "heterogeneity_p_value", "p_value_log10")
   
+  
+  # identify which ancestry populations have data for that phenotype
   pop_list <- unlist(str_split(unlist(c(phenotype_info)["pops"]), ","))
-  all_pop <- lapply(pop_list, function(x){paste(c("af_",
-                                                  "af_cases_",
-                                                  "af_controls_",
-                                                  "beta_",
-                                                  "se_",
-                                                  "pval_",
-                                                  "pval_log10_",
-                                                  "low_confidence_"),
-                                                x, sep = "")})
+  all_pop <- lapply(pop_list, function(x){paste(c("af_", "af_cases_", "af_controls_", "beta_", "se_", "pval_", "pval_log10_", "low_confidence_"), x, sep = "")})
   key_all <- c("effect_allele_freq", "eaf_case", "eaf_ctrl", "beta", "se", "p_value", "p_value_log10", NA)
   
+  
+  # create a list of meta, high-quality meta, and specific ancestry populations
   pop_col_subset <- append(list(meta_pop, metaHQ_pop), all_pop)
   names(pop_col_subset) <- c("meta", "metaHQ", pop_list)
+  
+  
+  # if only a specific population is of interest, then only download data for that population
+  if (!identical(population_list, "all_available")) {
+    pop_list <- pop_list[unlist(population_list)]
+  }
   rm(list = c("meta_pop", "metaHQ_pop", "pop_list", "all_pop"))
   
   
@@ -266,7 +278,7 @@ for (input in phenocode_list) {
   for (i in 1:length(pop_col_subset)) {
     # make a copy of the dataset
     data_temp <- copy(data_PHE)
-    
+  
     # identify which population we are working with
     pop <- names(pop_col_subset)[i]
     
@@ -325,7 +337,7 @@ for (input in phenocode_list) {
     # create duplicate columns for ref and alt since it is used twice
     data_temp[, ':='(ref2 = ref,
                      alt2 = alt)]
-    
+  
     # rename the dataset to match PRIMED notation
     setnames(data_temp,
              old = unname(rename[!is.na(rename)]),
@@ -359,7 +371,7 @@ for (input in phenocode_list) {
     
     # direction of the beta estimate (code will not pass validation if exactly equal to 0)
     data_temp[, ':='(direction_of_effect = ifelse(beta < 0, "-",
-                                                  ifelse(beta > 0, "+", "0")))]
+                                                 ifelse(beta > 0, "+", "0")))]
     if (any(data_temp$direction_of_effect %in% "0")) {
       warning('Beta estimate is exactly equal to 0, so sign is neither "-" or "+"')
     }
@@ -377,7 +389,7 @@ for (input in phenocode_list) {
                   "effect_allele_freq", "p_value", "beta", "se", "is_imputed")
     if (any(!(required %in% colnames(data_temp)))) {
       warning(paste0("The following required mappings are missing in the provided dataset:\n       ",
-                     paste0(required[!(required %in% colnames(data_temp))], collapse = "\n       ")))
+                  paste0(required[!(required %in% colnames(data_temp))], collapse = "\n       ")))
     }
     rm(list = c("required"))
     
@@ -464,22 +476,21 @@ for (input in phenocode_list) {
     
     
     # save the analysis table
-    bucket <- avbucket()
+    # bucket <- avbucket()
     outfile2 <- paste0(gsub(" ", "", phenotype_name), "_", pop, "_analysis.tsv")
     outfile2b <- file.path("/home/rstudio/UKBB Validation Tables", outfile2)
     fwrite(analysis, outfile2b, sep = "\t")
-    gsutil_cp(outfile2b, file.path(bucket, outfile2))
+    # gsutil_cp(outfile2b, file.path(bucket, outfile2))
     
     
     # save the dataset and file tables split by chromosome
     setkey(data_temp, chromosome)
     for (chr in unique(data_temp$chromosome)) {
       # save the wrangled data
-      bucket <- avbucket()
       outfile1 <- paste0(gsub(" ", "", phenotype_name), "_", pop, "_", chr, "_data.tsv.gz")
       outfile1b <- file.path("/home/rstudio/UKBB Processed Data", outfile1) 
       fwrite(data_temp[as.character(chr)], outfile1b, sep = "\t") # save to the local directory
-      gsutil_cp(outfile1b, file.path(bucket, outfile1)) # copy to the Google Bucket
+      # gsutil_cp(outfile1b, file.path(bucket, outfile1)) # copy to the Google Bucket
       
       
       # save the file table
@@ -491,7 +502,7 @@ for (input in phenocode_list) {
       outfile3 <- paste0(gsub(" ", "", phenotype_name), "_", pop, "_", chr, "_file.tsv")
       outfile3b <- file.path("/home/rstudio/UKBB Validation Tables", outfile3)
       fwrite(file_table, outfile3b, sep = "\t")
-      gsutil_cp(outfile3b, file.path(bucket, outfile3))
+      # gsutil_cp(outfile3b, file.path(bucket, outfile3))
     }
     
     # clear out the things that change with the dataset
