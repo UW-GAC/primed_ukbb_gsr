@@ -34,7 +34,9 @@ p <- add_argument(parser = p,
                   type = "character",
                   default = "all_available",
                   nargs = Inf,
-                  help = "Identify the specific population(s) for which you want the Pan-UK Biobank GSR data. If you list multiple phenotypes, then data will be restricted to these populations for every listed phenotype. Confirm that the population(s) of interest have data for your phenotype(s) of interest using the Pan-UK Biobank phenotype manifest.")
+                  help = "Identify the specific population(s) for which you want the Pan-UK Biobank GSR data.
+                          If you list multiple phenotypes, then data will be restricted to these populations for every listed phenotype.
+                          Confirm that the population(s) of interest have data for your phenotype(s) of interest using the Pan-UK Biobank phenotype manifest.")
 
 argv <- parse_args(parser = p)
 phenocode_list <- argv$phenocode
@@ -55,29 +57,20 @@ read_AWS <- function(url, save_location){
   # identify the file name
   file_name <- gsub("\\..*", "", basename(url))
   
-  # propose file path
-  proposed_file_path <- paste0("/home/rstudio/UKBB Raw Data/", file_name, ".gz", collapse = "")
+  # label file path
+  file_path <- paste0(file_name, ".gz", collapse = "")
   
-  # download if not already completed
-  if (!file.exists(proposed_file_path)) {
-    # STATUS
-    message("File not yet downloaded. Downloading compressed .tsv file.")
+  # download compressed .tsv file from Pan-UK Biobank's file on AWS
+  curl_download(url = url,
+                destfile = file_path,
+                mode = "wb",
+                quiet = FALSE)
     
-    # download compressed .tsv file from Pan-UK Biobank's file on AWS
-    curl_download(url = url,
-                  destfile = proposed_file_path,
-                  mode = "wb",
-                  quiet = FALSE)
-    
-    # STATUS
-    message("Downloaded compressed .tsv file.")
-  } else {
-    # STATUS
-    message("File already downloaded. Beginning decompression.")
-  }
+  # STATUS
+  message("Downloaded compressed .tsv file.")
   
   # read in the decompressed file as tsv
-  data <- fread(file = proposed_file_path,
+  data <- fread(file = file_path,
                 sep = "\t",
                 header = TRUE,
                 nrows = Inf,
@@ -476,11 +469,8 @@ for (input in phenocode_list) {
     
     
     # save the analysis table
-    # bucket <- avbucket()
     outfile2 <- paste0(gsub(" ", "", phenotype_name), "_", pop, "_analysis.tsv")
-    outfile2b <- file.path("/home/rstudio/UKBB Validation Tables", outfile2)
-    fwrite(analysis, outfile2b, sep = "\t")
-    # gsutil_cp(outfile2b, file.path(bucket, outfile2))
+    fwrite(analysis, outfile2, sep = "\t")
     
     
     # save the dataset and file tables split by chromosome
@@ -488,25 +478,21 @@ for (input in phenocode_list) {
     for (chr in unique(data_temp$chromosome)) {
       # save the wrangled data
       outfile1 <- paste0(gsub(" ", "", phenotype_name), "_", pop, "_", chr, "_data.tsv.gz")
-      outfile1b <- file.path("/home/rstudio/UKBB Processed Data", outfile1) 
-      fwrite(data_temp[as.character(chr)], outfile1b, sep = "\t") # save to the local directory
-      # gsutil_cp(outfile1b, file.path(bucket, outfile1)) # copy to the Google Bucket
-      
+      fwrite(data_temp[as.character(chr)], outfile1, sep = "\t") # save to the local directory
+
       
       # save the file table
-      file_table <- tibble(md5sum = md5sum(files = outfile1b),
-                           file_path = file.path(bucket, outfile1),
+      file_table <- tibble(md5sum = md5sum(files = outfile1),
+                           file_path = file.path(outfile1),
                            file_type = "data",
                            n_variants = nrow(data_temp[as.character(chr)]), # adjusted to exclude missing p-values
                            chromosome = chr)
       outfile3 <- paste0(gsub(" ", "", phenotype_name), "_", pop, "_", chr, "_file.tsv")
-      outfile3b <- file.path("/home/rstudio/UKBB Validation Tables", outfile3)
-      fwrite(file_table, outfile3b, sep = "\t")
-      # gsutil_cp(outfile3b, file.path(bucket, outfile3))
+      fwrite(file_table, outfile3, sep = "\t")
     }
     
     # clear out the things that change with the dataset
-    rm(list = c("outfile1", "outfile2", "outfile3", "outfile1b", "outfile2b", "outfile3b",
+    rm(list = c("outfile1", "outfile2", "outfile3",
                 "pop", "data_temp", "fields", "analysis", "file_table"))
   }
   
