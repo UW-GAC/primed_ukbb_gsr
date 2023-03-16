@@ -1,3 +1,4 @@
 {
-    "download_pan_ukbb.phenocode": ["30780", "250.2"]
+    "download_pan_ukbb.phenocode": ["30780", "250.2"],
+    "download_pan_ukbb.population": ["all_available"]
 }
