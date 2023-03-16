@@ -3,10 +3,12 @@ version 1.0
 workflow download_pan_ukbb {
     input {
         Array[String]+ phenocode
+        Array[String]  population
     }
 
     call results {
-        input: phenocode = phenocode
+        input: phenocode = phenocode,
+               population = population
     }
 
     output {
@@ -24,11 +26,13 @@ workflow download_pan_ukbb {
 task results {
     input {
         Array[String] phenocode
+        Array[String] population
     }
 
     command {
         Rscript /usr/local/primed_ukbb_gsr/get_AWS_data.R \
             --phenocode ${sep=" " phenocode}
+            --population ${sep=" " population}
     }
 
     output {
