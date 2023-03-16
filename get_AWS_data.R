@@ -195,16 +195,19 @@ rm(list = c("url_VMF"))
 data_VMF <- data_VMF[, c("chrom", "pos", "ref", "alt", "rsid", "info")]
 head(data_VMF)
 
+# phenocode_list <- list(c(250.2, 30710)[1])
+# input <- phenocode_list[[1]]
 
 # identify if the phenotype is binary
 for (input in phenocode_list) {
   phenotype_info <- manifest[manifest$phenocode %in% input, ]
+  phenotype_name <- phenotype_info$description
   phenotype_is_binary <- which_trait_type(phenotype_info$trait_type) == "binary"
   
   # Label step of the download
-  print(paste0("Beginning download of ", phenotype_info$description, "..."))
-
-
+  print(paste0("Beginning download of <", phenotype_name, "> dataset from Pan UKBB."))
+  
+  
   # download the GSR data pertaining to the chosen phenotype
   (url_PHE <- paste0(url, gsub("s3://pan-ukb-us-east-1/", "", phenotype_info$aws_path)))
   data_PHE <- read_AWS(url_PHE)
@@ -244,14 +247,14 @@ for (input in phenocode_list) {
   
   pop_list <- unlist(str_split(unlist(c(phenotype_info)["pops"]), ","))
   all_pop <- lapply(pop_list, function(x){paste(c("af_",
-                                       "af_cases_",
-                                       "af_controls_",
-                                       "beta_",
-                                       "se_",
-                                       "pval_",
-                                       "pval_log10_",
-                                       "low_confidence_"),
-                                     x, sep = "")})
+                                                  "af_cases_",
+                                                  "af_controls_",
+                                                  "beta_",
+                                                  "se_",
+                                                  "pval_",
+                                                  "pval_log10_",
+                                                  "low_confidence_"),
+                                                x, sep = "")})
   key_all <- c("effect_allele_freq", "eaf_case", "eaf_ctrl", "beta", "se", "p_value", "p_value_log10", NA)
   
   pop_col_subset <- append(list(meta_pop, metaHQ_pop), all_pop)
@@ -263,7 +266,7 @@ for (input in phenocode_list) {
   for (i in 1:length(pop_col_subset)) {
     # make a copy of the dataset
     data_temp <- copy(data_PHE)
-  
+    
     # identify which population we are working with
     pop <- names(pop_col_subset)[i]
     
@@ -278,8 +281,10 @@ for (input in phenocode_list) {
     pop_vars <- pop_col_subset[[i]]
     
     # make a key that returns either the matching value or NA
-    L0NA <- function(x){y <- pop_vars[key == x]
-                        ifelse(length(y) > 0, y, NA)}
+    L0NA <- function(x, pop_vars = pop_vars, key = key){
+      y <- pop_vars[key == x]
+      ifelse(length(y) > 0, y, NA)
+    }
     
     # rename the population subset of phenotype data to match PRIMED GSR DD
     rename <- c(
@@ -320,7 +325,7 @@ for (input in phenocode_list) {
     # create duplicate columns for ref and alt since it is used twice
     data_temp[, ':='(ref2 = ref,
                      alt2 = alt)]
-  
+    
     # rename the dataset to match PRIMED notation
     setnames(data_temp,
              old = unname(rename[!is.na(rename)]),
@@ -346,9 +351,6 @@ for (input in phenocode_list) {
                        OR_ci_upper = exp(beta_ci_upper))]
     }
     
-    # # identify as imputed with quality score of 
-    # data_temp[, ':='(is_imputed = "TRUE")] # consider an indicator ifelse(info == 1, "FALSE", "TRUE")
-    
     # create new column for DNA strand
     data_temp[, ':='(strand = "forward")]
     
@@ -357,10 +359,11 @@ for (input in phenocode_list) {
     
     # direction of the beta estimate (code will not pass validation if exactly equal to 0)
     data_temp[, ':='(direction_of_effect = ifelse(beta < 0, "-",
-                                                 ifelse(beta > 0, "+", "0")))]
+                                                  ifelse(beta > 0, "+", "0")))]
     if (any(data_temp$direction_of_effect %in% "0")) {
       warning('Beta estimate is exactly equal to 0, so sign is neither "-" or "+"')
     }
+    
     
     # put in the order of the data dictionary
     ddorder <- c(names(rename)[names(rename) %in% colnames(data_temp)], # order of columns in data dictionary
@@ -374,18 +377,9 @@ for (input in phenocode_list) {
                   "effect_allele_freq", "p_value", "beta", "se", "is_imputed")
     if (any(!(required %in% colnames(data_temp)))) {
       warning(paste0("The following required mappings are missing in the provided dataset:\n       ",
-                  paste0(required[!(required %in% colnames(data_temp))], collapse = "\n       ")))
+                     paste0(required[!(required %in% colnames(data_temp))], collapse = "\n       ")))
     }
     rm(list = c("required"))
-    
-    
-    # save file
-    bucket <- avbucket()
-    outfile1 <- paste0(gsub(" ", "", phenotype_name), "_", pop, ".tsv.gz")
-    outfile1b <- file.path("/home/rstudio/UKBB Processed Data", outfile1) 
-    fwrite(data_temp, outfile1b, sep = "\t")
-    gsutil_cp(outfile1b, file.path(bucket, outfile1))
-    
     
     
     ###############################################################
@@ -468,23 +462,37 @@ for (input in phenocode_list) {
     }
     analysis <- analysis[!is.na(analysis$value) | c(analysis$field %in% required), ]
     
-    # write the analysis table
+    
+    # save the analysis table
     bucket <- avbucket()
     outfile2 <- paste0(gsub(" ", "", phenotype_name), "_", pop, "_analysis.tsv")
     outfile2b <- file.path("/home/rstudio/UKBB Validation Tables", outfile2)
     fwrite(analysis, outfile2b, sep = "\t")
     gsutil_cp(outfile2b, file.path(bucket, outfile2))
     
-    # write the file table
-    file_table <- tibble(md5sum = md5sum(files = outfile1b),
-                         file_path = file.path(bucket, outfile1),
-                         file_type = "data",
-                         n_variants = nrow(data_temp), # adjusted to exclude missing p-values
-                         chromosome = "ALL")
-    outfile3 <- paste0(gsub(" ", "", phenotype_name), "_", pop, "_file.tsv")
-    outfile3b <- file.path("/home/rstudio/UKBB Validation Tables", outfile3)
-    fwrite(file_table, outfile3b, sep = "\t")
-    gsutil_cp(outfile3b, file.path(bucket, outfile3))
+    
+    # save the dataset and file tables split by chromosome
+    setkey(data_temp, chromosome)
+    for (chr in unique(data_temp$chromosome)) {
+      # save the wrangled data
+      bucket <- avbucket()
+      outfile1 <- paste0(gsub(" ", "", phenotype_name), "_", pop, "_", chr, "_data.tsv.gz")
+      outfile1b <- file.path("/home/rstudio/UKBB Processed Data", outfile1) 
+      fwrite(data_temp[as.character(chr)], outfile1b, sep = "\t") # save to the local directory
+      gsutil_cp(outfile1b, file.path(bucket, outfile1)) # copy to the Google Bucket
+      
+      
+      # save the file table
+      file_table <- tibble(md5sum = md5sum(files = outfile1b),
+                           file_path = file.path(bucket, outfile1),
+                           file_type = "data",
+                           n_variants = nrow(data_temp[as.character(chr)]), # adjusted to exclude missing p-values
+                           chromosome = chr)
+      outfile3 <- paste0(gsub(" ", "", phenotype_name), "_", pop, "_", chr, "_file.tsv")
+      outfile3b <- file.path("/home/rstudio/UKBB Validation Tables", outfile3)
+      fwrite(file_table, outfile3b, sep = "\t")
+      gsutil_cp(outfile3b, file.path(bucket, outfile3))
+    }
     
     # clear out the things that change with the dataset
     rm(list = c("outfile1", "outfile2", "outfile3", "outfile1b", "outfile2b", "outfile3b",
@@ -493,5 +501,3 @@ for (input in phenocode_list) {
   
   rm(list = c("key_all", "key_meta", "pop_col_subset", "i", "phenotype_name", "phenotype_is_binary", "bucket"))
 }
-
-
