@@ -42,7 +42,7 @@ argv <- parse_args(parser = p)
 phenocode_list <- argv$phenocode
 population_list <- argv$population
 
-print(paste(c(unlist(phenocode_list), unlist(population_list)), sep = ", "))
+print(phenocode_list); print(population_list); print(paste(c(unlist(phenocode_list), unlist(population_list)), sep = ", "))
 
 # set global timeout options
 hour_timeout <- 1
@@ -184,7 +184,7 @@ which_transf <- function(x){
   }
 }
 
-print(BEFORE FIRST DOWNLOAD)
+print("BEFORE FIRST DOWNLOAD")
 
 # download the Pan-UK Biobank phenotype manifest
 url <- "https://pan-ukb-us-east-1.s3.amazonaws.com/"
@@ -192,7 +192,7 @@ url_manifest <- paste0(url, "sumstats_release/phenotype_manifest.tsv.bgz")
 manifest <- read_AWS(url_manifest)
 rm(list = c("url_manifest"))
 
-PRINT(AFTER FIRST DOWNLOAD)
+PRINT("AFTER FIRST DOWNLOAD")
 
 # download the variant manifest file
 (url_VMF <- "https://pan-ukb-us-east-1.s3.amazonaws.com/sumstats_release/full_variant_qc_metrics.txt.bgz")
