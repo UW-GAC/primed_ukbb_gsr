@@ -25,7 +25,7 @@ p <- arg_parser("Pan UKBB GSR Download")
 
 p <- add_argument(parser = p,
                   arg = "--phenocode",
-                  type = "numeric",
+                  type = "character",
                   nargs = Inf,
                   help = "Identify the unique code of the phenotype(s) as described in the Pan-UK Biobank phenotype manifest.")
 
