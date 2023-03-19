@@ -42,8 +42,6 @@ argv <- parse_args(parser = p)
 phenocode_list <- argv$phenocode
 population_list <- argv$population
 
-print(phenocode_list); print(population_list); print(paste(c(unlist(phenocode_list), unlist(population_list)), sep = ", "))
-
 # set global timeout options
 hour_timeout <- 1
 options(timeout = 60*60*hour_timeout)
@@ -97,6 +95,8 @@ which_trait_type <- function(x){
     return("categorical")
   }
 }
+
+
 which_pops <- function(x){
   pop_names <- c("EUR" = "European ancestry",
                  "CSA" = "Central/South Asian ancestry",
@@ -116,6 +116,8 @@ which_pops <- function(x){
     paste(pops, collapse = " | ")
   }
 }
+
+
 which_sampsize <- function(x){
   pop_names <- c("EUR" = "European ancestry",
                  "CSA" = "Central/South Asian ancestry",
@@ -170,6 +172,8 @@ which_sampsize <- function(x){
                 "n_effective" = n_cases))
   }
 }
+
+
 which_transf <- function(x){
   common <- c("log" = "",
               "inverse-rank normal transformation" = "irnt",
@@ -184,7 +188,6 @@ which_transf <- function(x){
   }
 }
 
-print("BEFORE FIRST DOWNLOAD")
 
 # download the Pan-UK Biobank phenotype manifest
 url <- "https://pan-ukb-us-east-1.s3.amazonaws.com/"
@@ -192,7 +195,6 @@ url_manifest <- paste0(url, "sumstats_release/phenotype_manifest.tsv.bgz")
 manifest <- read_AWS(url_manifest)
 rm(list = c("url_manifest"))
 
-PRINT("AFTER FIRST DOWNLOAD")
 
 # download the variant manifest file
 (url_VMF <- "https://pan-ukb-us-east-1.s3.amazonaws.com/sumstats_release/full_variant_qc_metrics.txt.bgz")
@@ -201,8 +203,6 @@ rm(list = c("url_VMF"))
 data_VMF <- data_VMF[, c("chrom", "pos", "ref", "alt", "rsid", "info")]
 head(data_VMF)
 
-# phenocode_list <- list(c(250.2, 30710)[1])
-# input <- phenocode_list[[1]]
 
 # identify if the phenotype is binary
 for (input in phenocode_list) {
