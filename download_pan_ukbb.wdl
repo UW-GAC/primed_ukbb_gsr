@@ -42,6 +42,6 @@ task results {
     }
 
     runtime {
-        docker: "uwgac/primed-pan-ukbb:0.1.1"
+        docker: "uwgac/primed-pan-ukbb:0.1.2"
     }
 }
