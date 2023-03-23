@@ -265,7 +265,7 @@ for (input in phenocode_list) {
   
   # if only a specific population is of interest, then only download data for that population
   if (!identical(population_list, "all_available")) {
-    pop_list <- pop_list[unlist(population_list)]
+    pop_col_subset <- pop_col_subset[intersect(unlist(population_list), names(pop_col_subset))]
   }
   rm(list = c("meta_pop", "metaHQ_pop", "pop_list", "all_pop"))
   
@@ -289,9 +289,9 @@ for (input in phenocode_list) {
     pop_vars <- pop_col_subset[[i]]
     
     # make a key that returns either the matching value or NA
-    L0NA <- function(x, pop_vars = pop_vars, key = key){
+    L0NA <- function(x){
       y <- pop_vars[key == x]
-      ifelse(length(y) > 0, y, NA)
+      return(ifelse(length(y) > 0, y, NA))
     }
     
     # rename the population subset of phenotype data to match PRIMED GSR DD
