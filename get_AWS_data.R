@@ -1,15 +1,4 @@
 # library packages
-
-# remotes::install_github("Bioconductor/AnVIL", dependencies = FALSE)
-# remotes::install_github("UW-GAC/AnvilDataModels")
-# install.packages("R.utils")
-# install.packages("curl")
-# install.packages("data.table")
-# install.packages("tidyverse")
-# install.packages("argparser")
-
-
-# library packages
 library(AnVIL, quietly = TRUE)
 library(AnvilDataModels, quietly = TRUE)
 library(R.utils, quietly = TRUE) # unzip the .bgz file
