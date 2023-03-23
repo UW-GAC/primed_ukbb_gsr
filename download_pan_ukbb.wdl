@@ -4,11 +4,15 @@ workflow download_pan_ukbb {
     input {
         Array[String]+ phenocode
         Array[String]  population
+        Int disk_gb
+        Int mem_gb
     }
 
     call results {
         input: phenocode = phenocode,
-               population = population
+               population = population,
+               disk_gb = disk_gb,
+               mem_gb = mem_gb
     }
 
     output {
@@ -27,6 +31,8 @@ task results {
     input {
         Array[String] phenocode
         Array[String] population
+        Int disk_gb
+        Int mem_gb
     }
 
     command {
@@ -43,5 +49,7 @@ task results {
 
     runtime {
         docker: "uwgac/primed-pan-ukbb:0.1.2"
+        disks: "local-disk ${disk_gb} SSD"
+        memory: "~{mem_gb}GB"
     }
 }
