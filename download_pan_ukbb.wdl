@@ -48,7 +48,7 @@ task results {
     }
 
     runtime {
-        docker: "uwgac/primed-pan-ukbb:0.1.2"
+        docker: "uwgac/primed-pan-ukbb:0.1.3"
         disks: "local-disk ${disk_gb} SSD"
         memory: "~{mem_gb}GB"
     }
