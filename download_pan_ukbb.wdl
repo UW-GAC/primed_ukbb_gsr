@@ -3,9 +3,9 @@ version 1.0
 workflow download_pan_ukbb {
     input {
         Array[String]+ phenocode
-        Array[String] population
-        Int disk_gb
-        Int mem_gb
+        Array[String] population = "all_available"
+        Int disk_gb = 25
+        Int mem_gb = 50
     }
 
     call results {
