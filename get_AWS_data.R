@@ -467,6 +467,10 @@ for (input in phenocode_list) {
     
     # save the dataset and file tables split by chromosome
     setkey(data_temp, chromosome)
+    
+    print(unique(data_temp$chromosome))
+    print(head(data_temp))
+    
     for (chr in unique(data_temp$chromosome)) {
       # save the wrangled data
       outfile1 <- paste0(gsub(" ", "", phenotype_name), "_", pop, "_", chr, "_data.tsv.gz")
