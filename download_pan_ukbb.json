@@ -1,6 +1,6 @@
 {
     "download_pan_ukbb.phenocode": ["30780", "250.2"],
-    "download_pan_ukbb.population": ["all_available"],
+    "download_pan_ukbb.population": ["meta", "metaHQ", "EUR", "SCA", "AFR", "EAS", "MID", "AMR"],
     "download_pan_ukbb.disk_gb": 25,
-    "download_pan_ukbb.mem_gb": 16
+    "download_pan_ukbb.mem_gb": 50
 }
