@@ -227,29 +227,22 @@ for (input in phenocode_list) {
   # variable transformations #
   ############################
   
-  # remove natural log transformation of p-value
-  pval_cols <- colnames(data_PHE)[grepl("pval_", colnames(data_PHE))]
-  data_PHE[, c(pval_cols) := lapply(.SD, function(x){exp(x)}), .SDcols = pval_cols]
-  pval_log10 <- gsub("pval", "pval_log10", pval_cols)
-  data_PHE[, c(pval_log10) := lapply(.SD, function(x){-log10(x)}), .SDcols = pval_cols]
+  # remove log base 10 transformation of p-value  
+  neglog10_cols <- colnames(data_PHE)[grepl("neglog10_pval", colnames(data_PHE))]
+  untransform_cols <- gsub("neglog10_pval", "pval", neglog10_cols)
+  data_PHE[, c(untransform_cols) := lapply(.SD, function(x){10^(-x)}), .SDcols = neglog10_cols]
+  rm(list = c("neglog10_cols", "untransform_cols"))
   
-  print(pval_cols); print(pval_log10)
-  print(head(data_PHE))
-  print(colnames(data_PHE))
-  
-  rm(list = c("pval_cols", "pval_log10"))
-  
-
   
   # list names in dataset by population
-  meta_pop <- c("af_meta", "af_cases_meta", "af_controls_meta", "beta_meta", "se_meta", "pval_meta", "pval_heterogeneity", "pval_log10_meta")
-  metaHQ_pop <- c("af_meta_hq", "af_cases_meta_hq", "af_controls_meta_hq", "beta_meta_hq", "se_meta_hq", "pval_meta_hq", "pval_heterogeneity_hq", "pval_log10_meta_hq")
+  meta_pop <- c("af_meta", "af_cases_meta", "af_controls_meta", "beta_meta", "se_meta", "pval_meta", "pval_heterogeneity", "neglog10_pval_meta")
+  metaHQ_pop <- c("af_meta_hq", "af_cases_meta_hq", "af_controls_meta_hq", "beta_meta_hq", "se_meta_hq", "pval_meta_hq", "pval_heterogeneity_hq", "neglog10_pval_meta_hq")
   key_meta <- c("effect_allele_freq", "eaf_case", "eaf_ctrl", "beta", "se", "p_value", "heterogeneity_p_value", "p_value_log10")
   
   
   # identify which ancestry populations have data for that phenotype
   pop_list <- unlist(str_split(unlist(c(phenotype_info)["pops"]), ","))
-  all_pop <- lapply(pop_list, function(x){paste(c("af_", "af_cases_", "af_controls_", "beta_", "se_", "pval_", "pval_log10_", "low_confidence_"), x, sep = "")})
+  all_pop <- lapply(pop_list, function(x){paste(c("af_", "af_cases_", "af_controls_", "beta_", "se_", "pval_", "neglog10_pval_", "low_confidence_"), x, sep = "")})
   key_all <- c("effect_allele_freq", "eaf_case", "eaf_ctrl", "beta", "se", "p_value", "p_value_log10", NA)
   
   
