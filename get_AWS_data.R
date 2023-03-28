@@ -232,8 +232,14 @@ for (input in phenocode_list) {
   data_PHE[, c(pval_cols) := lapply(.SD, function(x){exp(x)}), .SDcols = pval_cols]
   pval_log10 <- gsub("pval", "pval_log10", pval_cols)
   data_PHE[, c(pval_log10) := lapply(.SD, function(x){-log10(x)}), .SDcols = pval_cols]
+  
+  print(pval_cols); print(pval_log10)
+  print(head(data_PHE))
+  print(colnames(data_PHE))
+  
   rm(list = c("pval_cols", "pval_log10"))
   
+
   
   # list names in dataset by population
   meta_pop <- c("af_meta", "af_cases_meta", "af_controls_meta", "beta_meta", "se_meta", "pval_meta", "pval_heterogeneity", "pval_log10_meta")
@@ -494,5 +500,5 @@ for (input in phenocode_list) {
                 "pop", "data_temp", "fields", "analysis", "file_table"))
   }
   
-  rm(list = c("key_all", "key_meta", "pop_col_subset", "i", "phenotype_name", "phenotype_is_binary", "bucket"))
+  rm(list = c("key_all", "key_meta", "pop_col_subset", "i", "phenotype_name", "phenotype_is_binary"))
 }
