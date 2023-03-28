@@ -21,7 +21,6 @@ p <- add_argument(parser = p,
 p <- add_argument(parser = p,
                   arg = "--population",
                   type = "character",
-                  default = "all_available",
                   nargs = Inf,
                   help = "Identify the specific population(s) for which you want the Pan-UK Biobank GSR data.
                           If you list multiple phenotypes, then data will be restricted to these populations for every listed phenotype.
