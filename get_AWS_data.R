@@ -207,12 +207,12 @@ for (input in phenocode_list) {
   (url_PHE <- paste0(url, gsub("s3://pan-ukb-us-east-1/", "", phenotype_info$aws_path)))
   data_PHE <- read_AWS(url_PHE)
   rm(list = c("url_PHE"))
-  head(data_PHE)
+  print(head(data_PHE))
   
   
   # check for unique matching ID
-  colnames(data_PHE)[1:4]
-  colnames(data_VMF)[1:4]
+  print(colnames(data_PHE)[1:4])
+  print(colnames(data_VMF)[1:4])
   
   
   # merge the per-phenotype data with the variant manifest file to get RSID
@@ -220,7 +220,7 @@ for (input in phenocode_list) {
                     by.x = c("chr",   "pos", "ref", "alt"),
                     by.y = c("chrom", "pos", "ref", "alt"),
                     all.x = TRUE, sort = FALSE)
-  head(data_PHE)
+  print(head(data_PHE))
   
   
   ############################
@@ -335,7 +335,9 @@ for (input in phenocode_list) {
     rm(list = "key")
     
     # remove all rows where the p-value is NA
+    print(data_temp)
     data_temp <- subset(data_temp, !is.na(data_temp$p_value))
+    print(data_temp)
     
     # construct 95% confidence intervals
     data_temp[, ':='(beta_ci_lower = beta + qnorm(0.025) * se,
