@@ -10,8 +10,7 @@ In the JSON input to the AnVIL workflow, you can set either
 or you can choose specific populations of interest from the list specified by
 > "download_pan_ukbb.population": ["meta", "metaHQ", "AFR", "AMR", "CSA", "EAS", "EUR", "MID"]
 
-
-
+If you choose a specific population that is unavailable for a particular phenotype, then no data will download for that population. If you specify multiple phenotypes, then the populations you specify will apply for each phenotype.
 
 <br/>
 
