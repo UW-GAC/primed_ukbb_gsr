@@ -4,11 +4,11 @@ Visit the Pan-UK Biobank phenotype manifest [Google Sheets webpage](https://docs
 
 <br/>
 
-Enter at least one phenocode from the Google Sheets webpage in the JSON template. For example, <code>"download_pan_ukbb.phenocode": ["30780", "250.2"]</code> would dowlnload the data pertaining to Direct LDL Cholesterol and Type 2 Diabetes, respectively. Of course, you could choose to only look at Direct LDL Cholesterol using <code>"download_pan_ukbb.phenocode": ["30780"]</code>.
+Enter at least one phenocode from the Google Sheets webpage in the JSON template. For example, <code>"download_pan_ukbb.phenocode": ["30780", "250.2"]</code> would download the data pertaining to Direct LDL Cholesterol and Type 2 Diabetes, respectively. Of course, you could choose to only look at Direct LDL Cholesterol using <code>"download_pan_ukbb.phenocode": ["30780"]</code>.
 
 <br/>
 
-Then set <code>"download_pan_ukbb.population": ["all_available"]</code> to download the GSR data for all populations having data for that phenotype. Alternatively, you can choose specific populations of interest using a subset of the list <code>"download_pan_ukbb.population": ["meta", "metaHQ", "AFR", "AMR", "CSA", "EAS", "EUR", "MID"]</code>. If you choose a specific population that is unavailable for a particular phenotype, then no data will download for that population. If you specify multiple phenotypes, then the populations you specify will apply for each phenotype.
+Then set <code>"download_pan_ukbb.population": ["all_available"]</code> to download the GSR data for all populations having data for that phenotype, in addition to the meta-analysis and high-quality meta-analysis. Alternatively, you can choose specific populations of interest using a subset of the list <code>"download_pan_ukbb.population": ["meta", "metaHQ", "AFR", "AMR", "CSA", "EAS", "EUR", "MID"]</code>. If you choose a specific population that is unavailable for a particular phenotype, then no data will download for that population. If you specify multiple phenotypes, then the populations you specify will apply for each phenotype.
 
 <br/>
 
