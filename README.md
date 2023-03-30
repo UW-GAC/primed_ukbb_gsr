@@ -4,8 +4,6 @@ Visit the Pan-UK Biobank phenotype manifest [Google Sheets webpage](https://docs
 
 <br/>
 
-
-
 In the JSON input to the AnVIL workflow, you can set <code>"download_pan_ukbb.population": ["all_available"]</code> to download the GSR data for all populations having data for that phenotype. Alternatively, you can choose specific populations of interest using a subset of the list <code>"download_pan_ukbb.population": ["meta", "metaHQ", "AFR", "AMR", "CSA", "EAS", "EUR", "MID"]</code>. If you choose a specific population that is unavailable for a particular phenotype, then no data will download for that population. If you specify multiple phenotypes, then the populations you specify will apply for each phenotype.
 
 <br/>
@@ -21,5 +19,7 @@ Note that the population abbreviations from the [Pan UKBB website](https://pan.u
 | EAS          | East Asian ancestry           |
 | EUR          | European ancestry             |
 | MID          | Middle Eastern ancestry       |
+
+<br/>
 
 Once the data is downloaded to your AnVIL workspace, you can begin the next steps of performing the data validation workflows. As of March 2023, the data will pass the GSR data validation workflows, however this should be confirmed manually; the Pan UKBB GSR raw data syntax may change over time, as it is stored in Amazon Web Service.
