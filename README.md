@@ -1,10 +1,12 @@
 # Import Pan UKBB GSR data into AnVIL from Broad Institute
 
-Visit the Pan-UK Biobank phenotype manifest [Google Sheets webpage](https://docs.google.com/spreadsheets/d/1AeeADtT0U1AukliiNyiVzVRdLYPkTbruQSk38DeutU8/edit#gid=1450719288) to identify one or more phenotypes of interest for your analysis. Enter at least one phenocode from the Google Sheets webpage (e.g., "30600" is the phenocode corresponding to Albumin) in the JSON template. Then use the "download_pan_ukbb" workflow in AnVIL to import the data into the syntax of the PRIMED consortium. Finally, perform the standard GSR data validation workflows to import the data tables and confirm that requirements are met.
+Visit the Pan-UK Biobank phenotype manifest [Google Sheets webpage](https://docs.google.com/spreadsheets/d/1AeeADtT0U1AukliiNyiVzVRdLYPkTbruQSk38DeutU8/edit#gid=1450719288) to identify one or more phenotypes of interest for your analysis. Then use the "download_pan_ukbb" workflow in AnVIL to import the data into the syntax of the PRIMED consortium.
+
+Enter at least one phenocode from the Google Sheets webpage in the JSON template. For example, <code>"download_pan_ukbb.phenocode": ["30780", "250.2"]</code> would dowlnload the data pertaining to Direct LDL Cholesterol and Type 2 Diabetes, respectively.
 
 <br/>
 
-In the JSON input to the AnVIL workflow, you can set <code>"download_pan_ukbb.population": ["all_available"]</code> to download the GSR data for all populations having data for that phenotype. Alternatively, you can choose specific populations of interest using a subset of the list <code>"download_pan_ukbb.population": ["meta", "metaHQ", "AFR", "AMR", "CSA", "EAS", "EUR", "MID"]</code>. If you choose a specific population that is unavailable for a particular phenotype, then no data will download for that population. If you specify multiple phenotypes, then the populations you specify will apply for each phenotype.
+Then set <code>"download_pan_ukbb.population": ["all_available"]</code> to download the GSR data for all populations having data for that phenotype. Alternatively, you can choose specific populations of interest using a subset of the list <code>"download_pan_ukbb.population": ["meta", "metaHQ", "AFR", "AMR", "CSA", "EAS", "EUR", "MID"]</code>. If you choose a specific population that is unavailable for a particular phenotype, then no data will download for that population. If you specify multiple phenotypes, then the populations you specify will apply for each phenotype.
 
 <br/>
 
