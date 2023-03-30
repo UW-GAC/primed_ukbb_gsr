@@ -26,4 +26,4 @@ Note that the population abbreviations from the [Pan UKBB website](https://pan.u
 
 <br/>
 
-Once the data is downloaded to your AnVIL workspace, you can begin the next steps of performing the data validation workflows. As of March 2023, the data will pass the GSR data validation workflows, however this should be confirmed manually. The Pan UKBB GSR raw data syntax may change over time, as it is stored in Amazon Web Service, so the R script supporting the docker image may require updates over time.
+Once the data are downloaded to your AnVIL workspace, you can begin the next steps of performing the data validation workflows. As of March 2023, the data will pass the GSR data validation workflows, however this should be confirmed manually. The Pan UKBB GSR raw data syntax may change over time, as it is stored in Amazon Web Service, so the R script supporting the docker image may require updates over time.
