@@ -51,7 +51,7 @@ read_AWS <- function(url, save_location){
   curl_download(url = url,
                 destfile = file_path,
                 mode = "wb",
-                quiet = FALSE)
+                quiet = TRUE)
     
   # STATUS
   message("Downloaded compressed .tsv file.")
@@ -492,5 +492,5 @@ for (input in phenocode_list) {
                 "pop", "data_temp", "fields", "analysis", "file_table"))
   }
   
-  rm(list = c("key_all", "key_meta", "pop_col_subset", "i", "phenotype_name", "phenotype_is_binary"))
+  rm(list = c("data_PHE", "key_all", "key_meta", "pop_col_subset", "i", "phenotype_name", "phenotype_is_binary"))
 }
