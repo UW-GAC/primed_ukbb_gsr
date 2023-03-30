@@ -2,7 +2,9 @@
 
 Visit the Pan-UK Biobank phenotype manifest [Google Sheets webpage](https://docs.google.com/spreadsheets/d/1AeeADtT0U1AukliiNyiVzVRdLYPkTbruQSk38DeutU8/edit#gid=1450719288) to identify one or more phenotypes of interest for your analysis. Then use the "download_pan_ukbb" workflow in AnVIL to import the data into the syntax of the PRIMED consortium.
 
-Enter at least one phenocode from the Google Sheets webpage in the JSON template. For example, <code>"download_pan_ukbb.phenocode": ["30780", "250.2"]</code> would dowlnload the data pertaining to Direct LDL Cholesterol and Type 2 Diabetes, respectively.
+<br/>
+
+Enter at least one phenocode from the Google Sheets webpage in the JSON template. For example, <code>"download_pan_ukbb.phenocode": ["30780", "250.2"]</code> would dowlnload the data pertaining to Direct LDL Cholesterol and Type 2 Diabetes, respectively. Of course, you could choose to only look at Direct LDL Cholesterol using <code>"download_pan_ukbb.phenocode": ["30780"]</code>.
 
 <br/>
 
