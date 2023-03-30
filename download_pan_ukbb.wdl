@@ -36,7 +36,7 @@ task results {
     }
 
     command {
-        Rscript /usr/local/primed_ukbb_gsr/get_AWS_data.R \
+        Rscript /usr/local/primed_ukbb_gsr/download_pan_ukbb.R \
             --phenocode ${sep=" " phenocode} \
             --population ${sep=" " population}
     }
