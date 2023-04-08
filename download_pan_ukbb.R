@@ -26,9 +26,39 @@ p <- add_argument(parser = p,
                           If you list multiple phenotypes, then data will be restricted to these populations for every listed phenotype.
                           Confirm that the population(s) of interest have data for your phenotype(s) of interest using the Pan-UK Biobank phenotype manifest.")
 
+p <- add_argument(parser = p,
+                  arg = "--conceptID",
+                  type = "character",
+                  nargs = Inf,
+                  help = "Identify the specific concept ID that match to the phenocode(s) you downloaded.")
+
+
 argv <- parse_args(parser = p)
 phenocode_list <- argv$phenocode
 population_list <- argv$population
+conceptID_list <- argv$conceptID
+
+
+# display the user inputs
+print(phenocode_list)
+print(population_list)
+print(conceptID_list)
+
+
+# coerce conceptID to NA, if applicable
+if (length(phenocode_list) == length(conceptID_list) & !identical(conceptID_list, "TBD")) {
+  message("User has specified the conceptID(s) correpsonding to the phenotype(s) listed.")
+} else if (length(phenocode_list) != length(conceptID_list) & !identical(conceptID_list, "TBD")) {
+  warning(paste("User supplied",
+                ifelse(length(phenocode_list) > length(conceptID_list), "more", "fewer"),
+                "phenotypes than concept IDs. Concept ID will be labled as NA."))
+  conceptID_list <- rep(NA, length(phenocode_list))
+} else {
+  message("Concept ID was unspecified. Concept ID will be labled as NA.")
+  conceptID_list <- rep(NA, length(phenocode_list))
+}
+print(conceptID_list)
+
 
 # set global timeout options
 hour_timeout <- 1
@@ -403,7 +433,7 @@ for (input in phenocode_list) {
                                   phenotype_info$description_more,
                                   phenotype_info$description), ##### Longer definition not always given. #####
       "covariates" = "Age | Sex | Age * Sex | Age^2 | Age^2 * Sex | First 10 principal components",
-      "concept_id" = NA, # We may search at this link, but need a formal rule for which to use: https://athena.ohdsi.org/search-terms/start
+      "concept_id" = conceptID_list[which(phenocode_list == input)], # We need a formal rule for which to use: https://athena.ohdsi.org/search-terms/start
       "mapped_trait" = NA,
       "reference_assembly" = "GRCh37", # found on https://pan.ukbb.broadinstitute.org/docs/per-phenotype-files/index.html
       "dbsnp_build_version" = NA,
