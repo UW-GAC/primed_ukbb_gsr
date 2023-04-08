@@ -1,6 +1,7 @@
 {
     "download_pan_ukbb.phenocode": ["30780", "250.2"],
     "download_pan_ukbb.population": ["AFR", "AMR", "CSA", "EAS", "EUR", "MID"],
+    "download_pan_ukbb.conceptID": ["exampleID1", "exampleID2"],
     "download_pan_ukbb.disk_gb": 25,
     "download_pan_ukbb.mem_gb": 50
 }
