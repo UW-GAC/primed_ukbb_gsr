@@ -30,7 +30,8 @@ p <- add_argument(parser = p,
                   arg = "--conceptID",
                   type = "character",
                   nargs = Inf,
-                  help = "Identify the specific concept ID that match to the phenocode(s) you downloaded.")
+                  help = "Identify the specific concept ID(s) that match to the phenocode(s) you listed.
+                          If you list multiple phenocodes, provide the concept IDs in the same order as the phenocodes.")
 
 
 argv <- parse_args(parser = p)
