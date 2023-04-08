@@ -473,15 +473,18 @@ for (input in phenocode_list) {
       "analysis_method" = ifelse(phenotype_is_binary, "logistic mixed model", "linear mixed model"), # https://pan.ukbb.broadinstitute.org/docs/technical-overview
       "analysis_software" = "SAIGE implemented in Hail Batch")
     
+    
     analysis <- tibble(field = names(fields),
                        value = unlist(fields))
     
+    
     # remove missing, non-required fields
+    # required columns up-to-date with GSR data model as of April 8, 2023
     required <- c("gsr_source", "consent_code", "upload_date", "contributor_contact", "trait", "trait_type",
                   "trait_unit", "trait_transformation", "trait_definition", "covariates", "concept_id",
                   "reference_assembly", "n_variants", "genotyping_technology", "genotyping_platform",
-                  "is_imputed", "n_samp", "n_effective", "cohorts",  "is_meta_analysis", "population_descriptors",
-                  "countries_of_recruitment", "analysis_method")
+                  "is_imputed", "n_samp", "n_effective", "cohorts",  "is_meta_analysis", "population_descriptor",
+                  "population_labels", "countries_of_recruitment", "analysis_method")
     if (analysis$value[analysis$field == "is_imputed"] %in% "TRUE") {
       required <- c(required, "imputation_reference_panel", "imputation_reference_panel_detail", "imputation_quality_filter")
     }
@@ -499,22 +502,25 @@ for (input in phenocode_list) {
     # save the dataset and file tables split by chromosome
     setkey(data_temp, chromosome)
     
-    # print unique chromosomes and first 5 rows of dataset
-    unique_chr <- unique(data_temp$chromosome)
-    print(unique_chr)
+    
+    # print first 5 rows of dataset before saving it
     print(head(data_temp))
     
+    
     # establish the file table with rows matching the number of unique chromosomes
+    unique_chr <- unique(data_temp$chromosome); print(unique_chr)
     file_table <- matrix(data = NA, nrow = length(unique_chr), ncol = 5)
     colnames(file_table) <- c("md5sum", "file_path", "file_type", "n_variants", "chromosome")
     file_table <- as_tibble(file_table)
+    
     
     for (chr in 1:length(unique_chr)) {
       # save the wrangled data
       outfile1 <- paste0(gsub(" ", "", phenotype_name), "_", pop, "_", unique_chr[chr], "_data.tsv.gz")
       fwrite(data_temp[as.character(unique_chr[chr])], outfile1, sep = "\t") # save to the local directory
-
-      # enter dataset-specific information into the file table
+      
+      
+      # enter population/chromosome specific information into the file table
       file_table[chr, ] <- list(md5sum     = md5sum(files = outfile1),
                                 file_path  = file.path(outfile1),
                                 file_type  = "data",
@@ -522,13 +528,15 @@ for (input in phenocode_list) {
                                 chromosome = unique_chr[chr])
     }
     
+    
     # save the file table
     outfile3 <- paste0(gsub(" ", "", phenotype_name), "_", pop, "_file.tsv")
     fwrite(file_table, outfile3, sep = "\t")
     
+    
     # clear out the things that change with the dataset
     rm(list = c("outfile1", "outfile2", "outfile3",
-                "pop", "data_temp", "fields", "analysis", "file_table"))
+                "pop", "data_temp", "fields", "analysis", "file_table", "chr", "unique_chr"))
   }
   
   rm(list = c("data_PHE", "key_all", "key_meta", "pop_col_subset", "i", "phenotype_name", "phenotype_is_binary"))
