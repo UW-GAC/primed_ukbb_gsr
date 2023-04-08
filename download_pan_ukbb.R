@@ -468,24 +468,32 @@ for (input in phenocode_list) {
     # save the dataset and file tables split by chromosome
     setkey(data_temp, chromosome)
     
-    print(unique(data_temp$chromosome))
+    # print unique chromosomes and first 5 rows of dataset
+    unique_chr <- unique(data_temp$chromosome)
+    print(unique_chr)
     print(head(data_temp))
     
-    for (chr in unique(data_temp$chromosome)) {
+    # establish the file table with rows matching the number of unique chromosomes
+    file_table <- matrix(data = NA, nrow = length(unique_chr), ncol = 5)
+    colnames(file_table) <- c("md5sum", "file_path", "file_type", "n_variants", "chromosome")
+    file_table <- as_tibble(file_table)
+    
+    for (chr in 1:length(unique_chr)) {
       # save the wrangled data
-      outfile1 <- paste0(gsub(" ", "", phenotype_name), "_", pop, "_", chr, "_data.tsv.gz")
-      fwrite(data_temp[as.character(chr)], outfile1, sep = "\t") # save to the local directory
+      outfile1 <- paste0(gsub(" ", "", phenotype_name), "_", pop, "_", unique_chr[chr], "_data.tsv.gz")
+      fwrite(data_temp[as.character(unique_chr[chr])], outfile1, sep = "\t") # save to the local directory
 
-      
-      # save the file table
-      file_table <- tibble(md5sum = md5sum(files = outfile1),
-                           file_path = file.path(outfile1),
-                           file_type = "data",
-                           n_variants = nrow(data_temp[as.character(chr)]), # adjusted to exclude missing p-values
-                           chromosome = chr)
-      outfile3 <- paste0(gsub(" ", "", phenotype_name), "_", pop, "_", chr, "_file.tsv")
-      fwrite(file_table, outfile3, sep = "\t")
+      # enter dataset-specific information into the file table
+      file_table[chr, ] <- list(md5sum     = md5sum(files = outfile1),
+                                file_path  = file.path(outfile1),
+                                file_type  = "data",
+                                n_variants = nrow(data_temp[as.character(unique_chr[chr])]),
+                                chromosome = unique_chr[chr])
     }
+    
+    # save the file table
+    outfile3 <- paste0(gsub(" ", "", phenotype_name), "_", pop, "_file.tsv")
+    fwrite(file_table, outfile3, sep = "\t")
     
     # clear out the things that change with the dataset
     rm(list = c("outfile1", "outfile2", "outfile3",
