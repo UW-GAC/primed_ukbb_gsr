@@ -19,7 +19,7 @@ workflow download_pan_ukbb {
 
     output {
         Array[File] analysis_table = results.analysis_table
-        Array[File] file_tables = results.file_tables
+        Array[File] file_table = results.file_table
         Array[File] data_tables = results.data_tables
     }
 
@@ -47,7 +47,7 @@ task results {
 
     output {
         Array[File] analysis_table = glob("*_analysis.tsv")
-        Array[File] file_tables = glob("*_file.tsv")
+        Array[File] file_table = glob("*_file.tsv")
         Array[File] data_tables = glob("*_data.tsv.gz")
     }
 
