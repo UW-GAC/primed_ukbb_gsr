@@ -465,7 +465,8 @@ for (input in phenocode_list) {
       "ctrl_age_max" = NA,
       "cohorts" = "UKBB",
       "is_meta_analysis" = ifelse(grepl("meta", pop), "TRUE", "FALSE"),
-      "population_descriptors" = which_pops(pop),
+      "population_descriptor" = "Genetic ancestry group", # https://pan.ukbb.broadinstitute.org/docs/qc
+      "population_labels" = which_pops(pop),
       "population_proportions" = NA,
       "countries_of_recruitment" = "England | Scotland | Wales", # I believe that Northern Ireland is not included in UK Biobank
       "countries_of_birth" = NA,
