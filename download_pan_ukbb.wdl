@@ -4,6 +4,7 @@ workflow download_pan_ukbb {
     input {
         Array[String]+ phenocode
         Array[String] population = ["all_available"]
+        Array[String] conceptID = ["TBD"]
         Int disk_gb = 25
         Int mem_gb = 50
     }
@@ -11,6 +12,7 @@ workflow download_pan_ukbb {
     call results {
         input: phenocode = phenocode,
                population = population,
+               conceptID = conceptID,
                disk_gb = disk_gb,
                mem_gb = mem_gb
     }
@@ -31,6 +33,7 @@ task results {
     input {
         Array[String] phenocode
         Array[String] population
+        Array[String] conceptID
         Int disk_gb
         Int mem_gb
     }
@@ -38,7 +41,8 @@ task results {
     command {
         Rscript /usr/local/primed_ukbb_gsr/download_pan_ukbb.R \
             --phenocode ${sep=" " phenocode} \
-            --population ${sep=" " population}
+            --population ${sep=" " population} \
+            --conceptID ${sep=" " conceptID}
     }
 
     output {
