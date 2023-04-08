@@ -1,12 +1,12 @@
 # library packages
-library(AnVIL, quietly = TRUE)
-library(AnvilDataModels, quietly = TRUE)
-library(R.utils, quietly = TRUE) # unzip the .bgz file
-library(curl, quietly = TRUE) # read from public AWS
-library(data.table, quietly = TRUE) # fread from publicly available AWS
-library(tidyverse, quietly = TRUE, warn.conflicts = FALSE) # write_tsv function at the end
-library(tools, quietly = TRUE) # get MD5 hash of the data file
-library(argparser, quietly = TRUE) # execute script from console
+library(AnVIL)
+library(AnvilDataModels)
+library(R.utils) # unzip the .bgz file
+library(curl) # read from public AWS
+library(data.table) # fread from publicly available AWS
+library(tidyverse) # write_tsv function at the end
+library(tools) # get MD5 hash of the data file
+library(argparser) # execute script from console
 
 
 # identify which phenotype you want to analyze
