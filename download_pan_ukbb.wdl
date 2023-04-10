@@ -10,7 +10,6 @@ workflow download_pan_ukbb {
     }
     
     call folder {
-       input: save = "NULL"
     }
     
     call results {
@@ -22,6 +21,7 @@ workflow download_pan_ukbb {
     }
     
     output {
+        File = folder.file_path
         Array[File] analysis_table = results.analysis_table
         Array[File] data_table = results.data_table
         Array[File] file_table = results.file_table
@@ -34,17 +34,12 @@ workflow download_pan_ukbb {
 }
 
 task folder {
-    input {
-        String save
-    }
-
     command {
-        Rscript /usr/local/primed_ukbb_gsr/folder.R \
-            --save ${save}
+        R \ write.table("", file = "_save.tsv")
     }
 
     output {
-        Array[File] analysis_table = glob("*_save.tsv")
+        Array[File] file_path = glob("*_save.tsv")
     }
 
     runtime {
