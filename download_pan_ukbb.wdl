@@ -44,7 +44,7 @@ task folder {
     }
 
     output {
-        Array[File] file_path = glob("*_save.tsv")
+        File file_path = glob("*_save.tsv")
     }
 
     runtime {
