@@ -7,10 +7,11 @@ workflow download_pan_ukbb {
         Array[String] conceptID = ["TBD"]
         Int disk_gb = 25
         Int mem_gb = 50
+        String save = "NULL"
     }
     
     call folder {
-        input: save = "NULL"
+        input: save = save
     }
     
     call results {
@@ -40,7 +41,8 @@ task folder {
     }
     
     command {
-        R \ write.table(${save}, file = "_save.tsv")
+        R
+        write.table(${save}, file = "_save.tsv")
     }
 
     output {
