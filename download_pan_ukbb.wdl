@@ -7,11 +7,10 @@ workflow download_pan_ukbb {
         Array[String] conceptID = ["TBD"]
         Int disk_gb = 25
         Int mem_gb = 50
-        String save = "NULL"
     }
     
     call folder {
-        input: save = save
+        input: save = "NULL"
     }
     
     call results {
@@ -23,12 +22,12 @@ workflow download_pan_ukbb {
     }
     
     output {
-        String file_path = folder.file_path
+        File file_path = folder.file_path
         Array[File] analysis_table = results.analysis_table
         Array[File] data_table = results.data_table
         Array[File] file_table = results.file_table
     }
-
+    
      meta {
           author: "UW Coordinating Center"
           email: "sdmorris@uw.edu"
@@ -44,11 +43,11 @@ task folder {
         R
         write.table(${save}, file = "_save.tsv")
     }
-
+    
     output {
-        String file_path = glob("*_save.tsv")
+        File file_path = glob("*_save.tsv")
     }
-
+    
     runtime {
         docker: "uwgac/primed-pan-ukbb:0.1.0"
         disks: "local-disk 1 SSD"
