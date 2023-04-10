@@ -40,6 +40,11 @@ task folder {
     }
 
     
+    command {
+        R \
+        write.table(1, file = "_save.tsv")
+    }
+    
     output {
         File file_path = glob("*_save.tsv")
     }
