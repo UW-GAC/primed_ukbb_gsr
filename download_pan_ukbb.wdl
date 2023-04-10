@@ -23,7 +23,7 @@ workflow download_pan_ukbb {
     }
     
     output {
-        String = file_path = folder.file_path
+        String file_path = folder.file_path
         Array[File] analysis_table = results.analysis_table
         Array[File] data_table = results.data_table
         Array[File] file_table = results.file_table
