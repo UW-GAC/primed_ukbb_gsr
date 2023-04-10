@@ -10,6 +10,7 @@ workflow download_pan_ukbb {
     }
     
     call folder {
+        input: save = "NULL"
     }
     
     call results {
@@ -34,8 +35,12 @@ workflow download_pan_ukbb {
 }
 
 task folder {
+    input {
+        save = save
+    }
+    
     command {
-        R \ write.table("", file = "_save.tsv")
+        R \ write.table(${save}, file = "_save.tsv")
     }
 
     output {
