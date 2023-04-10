@@ -36,7 +36,7 @@ workflow download_pan_ukbb {
 
 task folder {
     input {
-        save = save
+        String save
     }
 
     
