@@ -22,7 +22,7 @@ workflow download_pan_ukbb {
     }
     
     output {
-        String file_path = folder.file_path
+        File file_path = folder.file_path
         Array[File] analysis_table = results.analysis_table
         Array[File] data_table = results.data_table
         Array[File] file_table = results.file_table
@@ -41,11 +41,11 @@ task folder {
     
     command <<<
         Rscript; \
-        write.table("", file = "get_filepath.tsv")
+        write.table("", file = "get_filepath.tsv");
     >>>
     
     output {
-        String file_path = glob("*get_filepath.tsv")
+        File file_path = glob("*get_filepath.tsv")
     }
     
     runtime {
