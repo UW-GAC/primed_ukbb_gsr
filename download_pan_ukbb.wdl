@@ -22,7 +22,7 @@ workflow download_pan_ukbb {
     }
     
     output {
-        File file_path = folder.file_path
+        String file_path = results.file_path
         Array[File] analysis_table = results.analysis_table
         Array[File] data_table = results.data_table
         Array[File] file_table = results.file_table
@@ -38,7 +38,6 @@ task folder {
     input {
         String save
     }
-
     
     command <<<
         Rscript; \
