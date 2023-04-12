@@ -41,7 +41,7 @@ task folder {
     
     command <<<
         Rscript; \
-        write.table("", file = "get_filepath.tsv");
+        write.table(1, file = "get_filepath.tsv");
     >>>
     
     output {
