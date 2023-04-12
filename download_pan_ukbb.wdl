@@ -52,7 +52,7 @@ task folder {
     runtime {
         docker: "uwgac/primed-pan-ukbb:0.1.0"
         disks: "local-disk 1 SSD"
-        memory: "~1GB"
+        memory: "1 GB"
     }
 }
 
