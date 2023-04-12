@@ -40,13 +40,13 @@ task folder {
     }
 
     
-    command {
-        R \
-        write.table(1, file = "_save.tsv")
-    }
+    command <<<
+        Rscript; \
+        write.table("", file = "get_filepath.tsv")
+    >>>
     
     output {
-        File file_path = glob("*_save.tsv")
+        File file_path = glob("*get_filepath.tsv")
     }
     
     runtime {
@@ -65,12 +65,12 @@ task results {
         Int mem_gb
     }
 
-    command {
+    command <<<
         Rscript /usr/local/primed_ukbb_gsr/download_pan_ukbb.R \
             --phenocode ${sep=" " phenocode} \
             --population ${sep=" " population} \
             --conceptID ${sep=" " conceptID}
-    }
+    >>>
 
     output {
         Array[File] analysis_table = glob("*_analysis.tsv")
