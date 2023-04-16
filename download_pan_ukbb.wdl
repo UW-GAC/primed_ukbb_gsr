@@ -27,9 +27,9 @@ workflow download_pan_ukbb {
     }
     
     output {
-        Array[File] analysis_table = move.analysis_table
-        Array[File] data_table = move.data_table
-        Array[File] file_table = move.file_table
+        Array[File] analysis_table = move.analysis_table_out
+        Array[File] data_table = move.data_table_out
+        Array[File] file_table = move.file_table_out
     }
     
      meta {
