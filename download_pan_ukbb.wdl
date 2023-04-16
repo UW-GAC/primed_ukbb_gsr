@@ -94,9 +94,9 @@ task move {
           echo $line
           ((line+=1))
           x = ${files%/}
-          printf "$x\n"
+          echo $x
           fname = $(basename $x)
-          printf "$fname\n"
+          echo $fname
           gsutil -m mv $x gs://${bucket}/UKBB-Data/${fname}
         done < <(
         )
