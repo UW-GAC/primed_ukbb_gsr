@@ -40,9 +40,9 @@ task results {
     
     command <<<
         Rscript /usr/local/primed_ukbb_gsr/download_pan_ukbb.R \
-            --phenocode ${sep=" " phenocode} \
-            --population ${sep=" " population} \
-            --conceptID ${sep=" " conceptID}
+            --phenocode ${sep = " " phenocode} \
+            --population ${sep = " " population} \
+            --conceptID ${sep = " " conceptID}
     >>>
     
     output {
