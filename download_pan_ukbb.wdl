@@ -91,12 +91,12 @@ task move {
         line = 1
         while read files
         do
-          echo $line
+          echo ${line}
           ((line+=1))
           x = ${files%/}
-          echo $x
-          fname = $(basename $x)
-          echo $fname
+          echo ${x}
+          fname = $(basename)
+          echo ${fname}
           gsutil -m mv $x gs://${bucket}/UKBB-Data/${fname}
         done < <(
         )
