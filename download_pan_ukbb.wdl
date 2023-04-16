@@ -27,9 +27,9 @@ workflow download_pan_ukbb {
     }
     
     output {
-        Array[File] analysis_table = move.analysis_table_out
-        Array[File] data_table = move.data_table_out
-        Array[File] file_table = move.file_table_out
+        Array[File] analysis_table = create.analysis_table
+        Array[File] data_table = create.data_table
+        Array[File] file_table = create.file_table
     }
     
      meta {
@@ -95,12 +95,6 @@ task move {
     >>>
     
     # gsutil ls -d gs://${bucket}
-    
-    output {
-        Array[File] analysis_table_out = glob("*_analysis.tsv")
-        Array[File] file_table_out = glob("*_file.tsv")
-        Array[File] data_table_out = glob("*_data.tsv.gz")
-    }
     
     runtime {
         docker: "uwgac/primed-pan-ukbb:0.1.0"
