@@ -97,9 +97,9 @@ task move {
     # gsutil ls -d gs://${bucket}
     
     output {
-        Array[File] analysis_table = glob("*_analysis.tsv")
-        Array[File] file_table = glob("*_file.tsv")
-        Array[File] data_table = glob("*_data.tsv.gz")
+        Array[File] analysis_table_out = glob("*_analysis.tsv")
+        Array[File] file_table_out = glob("*_file.tsv")
+        Array[File] data_table_out = glob("*_data.tsv.gz")
     }
     
     runtime {
