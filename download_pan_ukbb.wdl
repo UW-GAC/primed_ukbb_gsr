@@ -82,20 +82,35 @@ task move {
     # posts/360068067031-Write-cromwell-output-to-
     # its-own-folder-instead-of-the-root-directory
     
+    # files = ( "${analysis_table_in[*]}" "${data_table_in[*]}" "${file_table_in[*]}" )
+    
     command <<<
         #!/bin/bash
+        
+        files = ( "${analysis_table_in[*]}" )
+        
         bucket = fc-bb562a6c-b341-4f67-8016-c36ffd74b988
-        while read analysis_table_in
+        
+        line = 1
+        while read files
         do
-          x = ${analysis_table_in%/}
-          basename = $(basename $x)
-          gsutil -m mv $x gs://${bucket}/UKBB-Data/${sep="" phenocode}/${basename}
+          echo $line
+          ((line+=1))
+          
+          x = ${files%/}
+          
+          printf "$x\n"
+          
+          fname = $(basename $x)
+          
+          printf "$fname\n"
+          
+          gsutil -m mv $x gs://${bucket}/UKBB-Data/${fname}
+          
         done < <(
         )
     >>>
-    
-    # gsutil ls -d gs://${bucket}
-    
+        
     runtime {
         docker: "uwgac/primed-pan-ukbb:0.1.0"
         disks: "local-disk ${disk_gb} SSD"
