@@ -9,10 +9,6 @@ workflow download_pan_ukbb {
         Int mem_gb = 50
     }
     
-    call folder {
-        input: save = "NULL"
-    }
-    
     call results {
         input: phenocode = phenocode,
                population = population,
@@ -22,7 +18,6 @@ workflow download_pan_ukbb {
     }
     
     output {
-        File file_path = folder.file_path
         Array[File] analysis_table = results.analysis_table
         Array[File] data_table = results.data_table
         Array[File] file_table = results.file_table
@@ -34,27 +29,6 @@ workflow download_pan_ukbb {
     }
 }
 
-task folder {
-    input {
-        String save
-    }
-    
-    command <<<
-        Rscript; \
-        write.table(1, file = "get_filepath.tsv");
-    >>>
-    
-    output {
-        File file_path = glob("*get_filepath.tsv")
-    }
-    
-    runtime {
-        docker: "uwgac/primed-pan-ukbb:0.1.0"
-        disks: "local-disk 1 SSD"
-        memory: "1 GB"
-    }
-}
-
 task results {
     input {
         Array[String] phenocode
@@ -63,23 +37,23 @@ task results {
         Int disk_gb
         Int mem_gb
     }
-
+    
     command <<<
         Rscript /usr/local/primed_ukbb_gsr/download_pan_ukbb.R \
-            --phenocode ${sep=" " phenocode} \
-            --population ${sep=" " population} \
-            --conceptID ${sep=" " conceptID}
+            --phenocode ~{sep=" " phenocode} \
+            --population ~{sep=" " population} \
+            --conceptID ~{sep=" " conceptID}
     >>>
-
+    
     output {
         Array[File] analysis_table = glob("*_analysis.tsv")
         Array[File] file_table = glob("*_file.tsv")
         Array[File] data_table = glob("*_data.tsv.gz")
     }
-
+    
     runtime {
         docker: "uwgac/primed-pan-ukbb:0.1.0"
-        disks: "local-disk ${disk_gb} SSD"
-        memory: "~{mem_gb}GB"
+        disks: "local-disk ~{disk_gb} SSD"
+        memory: "~{mem_gb} GB"
     }
 }
