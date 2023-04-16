@@ -86,27 +86,18 @@ task move {
     
     command <<<
         #!/bin/bash
-        
         files = ( "${analysis_table_in[*]}" )
-        
         bucket = fc-bb562a6c-b341-4f67-8016-c36ffd74b988
-        
         line = 1
         while read files
         do
           echo $line
           ((line+=1))
-          
           x = ${files%/}
-          
           printf "$x\n"
-          
           fname = $(basename $x)
-          
           printf "$fname\n"
-          
           gsutil -m mv $x gs://${bucket}/UKBB-Data/${fname}
-          
         done < <(
         )
     >>>
