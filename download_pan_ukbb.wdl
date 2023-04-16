@@ -40,9 +40,9 @@ task results {
     
     command <<<
         Rscript /usr/local/primed_ukbb_gsr/download_pan_ukbb.R \
-            --phenocode ~{sep=" " phenocode} \
-            --population ~{sep=" " population} \
-            --conceptID ~{sep=" " conceptID}
+            --phenocode ${sep=" " phenocode} \
+            --population ${sep=" " population} \
+            --conceptID ${sep=" " conceptID}
     >>>
     
     output {
@@ -53,7 +53,7 @@ task results {
     
     runtime {
         docker: "uwgac/primed-pan-ukbb:0.1.0"
-        disks: "local-disk ~{disk_gb} SSD"
-        memory: "~{mem_gb} GB"
+        disks: "local-disk ${disk_gb} SSD"
+        memory: "${mem_gb} GB"
     }
 }
