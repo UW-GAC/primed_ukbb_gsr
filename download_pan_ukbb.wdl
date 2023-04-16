@@ -18,9 +18,9 @@ workflow download_pan_ukbb {
     }
     
     call move {
-        input: analysis_table = create.analysis_table,
-               data_table = create.data_table,
-               file_table = create.file_table,
+        input: analysis_table_in = create.analysis_table,
+               data_table_in = create.data_table,
+               file_table_in = create.file_table,
                phenocode = phenocode,
                disk_gb = disk_gb,
                mem_gb = mem_gb
@@ -69,9 +69,9 @@ task create {
 
 task move {
     input {
-        Array[File] analysis_table
-        Array[File] data_table
-        Array[File] file_table
+        Array[File] analysis_table_in
+        Array[File] data_table_in
+        Array[File] file_table_in
         Array[String] phenocode
         Int disk_gb
         Int mem_gb
@@ -85,9 +85,9 @@ task move {
     command <<<
         #!/bin/bash
         bucket = fc-bb562a6c-b341-4f67-8016-c36ffd74b988
-        while read analysis_table
+        while read analysis_table_in
         do
-          x = ${analysis_table%/}
+          x = ${analysis_table_in%/}
           basename = $(basename $x)
           gsutil -m mv $x gs://${bucket}/UKBB-Data/${sep="" phenocode}/${basename}
         done < <(
