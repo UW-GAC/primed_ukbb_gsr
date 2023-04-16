@@ -86,7 +86,7 @@ task move {
     
     command <<<
         #!/bin/bash
-        files = ( "${analysis_table_in[*]}" )
+        files = ("${analysis_table_in[*]}")
         bucket = fc-bb562a6c-b341-4f67-8016-c36ffd74b988
         line = 1
         while read files
