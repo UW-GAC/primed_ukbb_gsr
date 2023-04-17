@@ -69,9 +69,9 @@ task create {
 
 task move {
     input {
-        Array[File] analysis_table_in
-        Array[File] data_table_in
-        Array[File] file_table_in
+        Array[String] analysis_table_in
+        Array[String] data_table_in
+        Array[String] file_table_in
         Array[String] phenocode
         Int disk_gb
         Int mem_gb
