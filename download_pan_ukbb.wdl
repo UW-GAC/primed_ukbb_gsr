@@ -21,9 +21,7 @@ workflow download_pan_ukbb {
         input: analysis_table_in = create.analysis_table,
                data_table_in = create.data_table,
                file_table_in = create.file_table,
-               phenocode = phenocode,
-               disk_gb = disk_gb,
-               mem_gb = mem_gb
+               phenocode = phenocode
     }
     
     output {
@@ -73,8 +71,6 @@ task move {
         Array[String] data_table_in
         Array[String] file_table_in
         Array[String] phenocode
-        Int disk_gb
-        Int mem_gb
     }
     
     # The command chunk below was adapted from:
@@ -107,7 +103,5 @@ task move {
         
     runtime {
         docker: "uwgac/primed-pan-ukbb:0.1.0"
-        disks: "local-disk ${disk_gb} SSD"
-        memory: "${mem_gb} GB"
     }
 }
