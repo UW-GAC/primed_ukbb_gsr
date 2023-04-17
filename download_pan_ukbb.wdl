@@ -90,7 +90,7 @@ task move {
     
     command <<<
         #!/bin/bash
-        files=( ~{analysis_table_in}[*] )
+        files=( ~{sep=" " analysis_table_in}[*] )
         line=1
         bucket="fc-ben1jje-4312-432j-3212-fj2jbihb2"
         for x in ${files[@]}; do
