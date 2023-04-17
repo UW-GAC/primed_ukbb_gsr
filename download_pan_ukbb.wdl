@@ -91,7 +91,7 @@ task move {
         bucket="fc-ben1jje-4312-432j-3212-fj2jbihb2"
         for x in ${files[@]};
             do
-            echo "File" ${line}
+            echo "File"${line}
             ((line+=1))
             fname=$(basename $x)
             echo ${fname}
