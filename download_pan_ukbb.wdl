@@ -84,13 +84,16 @@ task move {
     
     # files = ( "${analysis_table_in[*]}" "${data_table_in[*]}" "${file_table_in[*]}" )
     
+    # if [ ! -d gs://${bucket}/UKBB-Data ]; then
+    #       mkdir -p gs://${bucket}/UKBB-Data
+    # fi
+    
     command <<<
         #!/bin/bash
         files=("${analysis_table_in[*]}")
         line=1
         bucket="fc-ben1jje-4312-432j-3212-fj2jbihb2"
-        for x in ${files[@]};
-            do
+        for x in ${files[@]}; do
             echo "File"${line}
             ((line+=1))
             fname=$(basename ${x})
