@@ -100,7 +100,7 @@ task move {
             echo ${fname}
             oldpath=${x}
             echo ${oldpath}
-            newpath="gs://${bucket}/UKBB-Data/~{sep="" phenocode}/${fname}"
+            newpath="gs://${bucket}/UKBB-Data/~{sep="AND" phenocode}/${fname}"
             echo ${newpath}
             gsutil -m mv ${oldpath} ${newpath}
         done;
