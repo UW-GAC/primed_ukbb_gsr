@@ -93,13 +93,13 @@ task move {
             do
             echo "File"${line}
             ((line+=1))
-            fname=$(basename $x)
+            fname=$(basename ${x})
             echo ${fname}
-            oldpath="$x"
+            oldpath=${x}
             echo ${oldpath}
             newpath="gs://${bucket}/UKBB-Data/${fname}"
             echo ${newpath}
-            gsutil -m mv $x gs://${bucket}/UKBB-Data/${fname}
+            gsutil -m mv ${oldpath} ${newpath}
         done;
     >>>
         
