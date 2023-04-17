@@ -90,7 +90,7 @@ task move {
     
     command <<<
         #!/bin/bash
-        files=('~{sep="' '" analysis_table_in}')
+        files=('~{sep="' '" analysis_table_in}' '~{sep="' '" data_table_in}' '~{sep="' '" file_table_in}')
         line=1
         bucket="fc-bb562a6c-b341-4f67-8016-c36ffd74b988"
         for x in ${files[@]}; do
@@ -100,7 +100,7 @@ task move {
             echo ${fname}
             oldpath=${x}
             echo ${oldpath}
-            newpath="gs://${bucket}/UKBB-Data/${fname}"
+            newpath="gs://${bucket}/UKBB-Data/~{sep="" phenocode}/${fname}"
             echo ${newpath}
             gsutil -m mv ${oldpath} ${newpath}
         done;
