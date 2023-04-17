@@ -78,15 +78,14 @@ task move {
     }
     
     # The command chunk below was adapted from:
+    #
     # https://support.terra.bio/hc/en-us/community/
     # posts/360068067031-Write-cromwell-output-to-
     # its-own-folder-instead-of-the-root-directory
-    
-    # files = ( "${analysis_table_in[*]}" "${data_table_in[*]}" "${file_table_in[*]}" )
-    
-    # if [ ! -d gs://${bucket}/UKBB-Data ]; then
-    #       mkdir -p gs://${bucket}/UKBB-Data
-    # fi
+    #                   and
+    # https://bioinformatics.stackexchange.com/
+    # questions/18827/how-do-i-use-bash-for-loops
+    # -to-loop-through-a-wdl-array
     
     command <<<
         #!/bin/bash
