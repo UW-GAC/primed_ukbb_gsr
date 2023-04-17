@@ -92,7 +92,7 @@ task move {
         #!/bin/bash
         files=('~{sep="' '" analysis_table_in}')
         line=1
-        bucket="fc-ben1jje-4312-432j-3212-fj2jbihb2"
+        bucket="fc-bb562a6c-b341-4f67-8016-c36ffd74b988"
         for x in ${files[@]}; do
             echo "File"${line}
             ((line+=1))
