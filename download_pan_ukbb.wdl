@@ -99,8 +99,7 @@ task move {
             echo ${oldpath}
             newpath="gs://${bucket}/UKBB-Data/${fname}"
             echo ${newpath}
-
-          gsutil -m mv $x gs://${bucket}/UKBB-Data/${fname}
+            gsutil -m mv $x gs://${bucket}/UKBB-Data/${fname}
         done;
     >>>
         
