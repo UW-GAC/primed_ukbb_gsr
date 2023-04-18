@@ -22,8 +22,8 @@ workflow download_pan_ukbb {
         input: analysis_table_in = create.analysis_table,
                file_table_in = create.file_table,
                data_table_in = create.data_table,
-               bucket_name = bucket_name,
-               phenocode = phenocode
+               phenocode = phenocode,
+               bucket_name = bucket_name
     }
     
     output {
