@@ -3,7 +3,7 @@ version 1.0
 workflow download_pan_ukbb {
     input {
         Array[String]+ phenocode
-        String+ bucket_name
+        String bucket_name
         Array[String] population = ["all_available"]
         Array[String] conceptID = ["TBD"]
         Int disk_gb = 25
