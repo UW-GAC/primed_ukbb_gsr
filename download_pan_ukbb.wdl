@@ -87,7 +87,7 @@ task move {
             oldpath=${x}
             echo ${oldpath}
             newpath="gs://${bucket}/UKBB-Data/~{sep="AND" phenocode}/${fname}"
-            echo ${newpath} >> $analysis_table_in.txt
+            echo ${newpath} >> analysis_table_in.txt
             gsutil -m mv ${oldpath} ${newpath}
         done;
         files=('~{sep="' '" file_table_in}')
@@ -97,7 +97,7 @@ task move {
             oldpath=${x}
             echo ${oldpath}
             newpath="gs://${bucket}/UKBB-Data/~{sep="AND" phenocode}/${fname}"
-            echo ${newpath} >> $file_table_in.txt
+            echo ${newpath} >> file_table_in.txt
             gsutil -m mv ${oldpath} ${newpath}
         done;
         files=('~{sep="' '" data_table_in}')
@@ -107,7 +107,7 @@ task move {
             oldpath=${x}
             echo ${oldpath}
             newpath="gs://${bucket}/UKBB-Data/~{sep="AND" phenocode}/${fname}"
-            echo ${newpath} >> $data_table_in.txt
+            echo ${newpath} >> data_table_in.txt
             gsutil -m mv ${oldpath} ${newpath}
         done;
     >>>
