@@ -33,12 +33,17 @@ p <- add_argument(parser = p,
                   help = "Identify the specific concept ID(s) that match to the phenocode(s) you listed.
                           If you list multiple phenocodes, provide the concept IDs in the same order as the phenocodes.")
 
+p <- add_argument(parser = p,
+                  arg = "--bucket_name",
+                  type = "character",
+                  nargs = Inf,
+                  help = "Identify the bucket name identifying your workspace via Dashboard -> Cloud Information -> Bucket Name.")
 
 argv <- parse_args(parser = p)
 phenocode_list <- argv$phenocode
 population_list <- argv$population
 conceptID_list <- argv$conceptID
-
+bucket_name <- unlist(argv$bucket_name)
 
 # display the user inputs
 print(phenocode_list)
@@ -523,7 +528,7 @@ for (input in phenocode_list) {
       
       # enter population/chromosome specific information into the file table
       file_table[chr, ] <- list(md5sum     = md5sum(files = outfile1),
-                                file_path  = file.path(outfile1),
+                                file_path  = file.path("gs:/", bucket_name, "UKBB-Data", input, outfile1),
                                 file_type  = "data",
                                 n_variants = nrow(data_temp[as.character(unique_chr[chr])]),
                                 chromosome = unique_chr[chr])
