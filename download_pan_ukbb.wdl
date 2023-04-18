@@ -19,9 +19,9 @@ workflow download_pan_ukbb {
     }
     
     call move {
-        input: analysis_table_in = create.analysis_table,
-               file_table_in = create.file_table,
-               data_table_in = create.data_table,
+        input: analysis_table_str = create.analysis_table,
+               file_table_str = create.file_table,
+               data_table_str = create.data_table,
                phenocode = phenocode,
                bucket_name = bucket_name
     }
@@ -69,9 +69,9 @@ task create {
 
 task move {
     input {
-        Array[String] analysis_table_in
-        Array[String] file_table_in
-        Array[String] data_table_in
+        Array[String] analysis_table_str
+        Array[String] file_table_str
+        Array[String] data_table_str
         Array[String] phenocode
         String bucket_name
     }
@@ -80,42 +80,42 @@ task move {
         #!/bin/bash
         echo "Beginning bash script..."
         bucket=~{bucket_name}
-        files=('~{sep="' '" analysis_table_in}')
+        files=('~{sep="' '" analysis_table_str}')
         for x in ${files[@]}; do
             fname=$(basename ${x})
             echo ${fname}
             oldpath=${x}
             echo ${oldpath}
             newpath="gs://${bucket}/UKBB-Data/~{sep="AND" phenocode}/${fname}"
-            echo ${newpath} >> analysis_table_in.txt
+            echo ${newpath} >> analysis_table_str.txt
             gsutil -m mv ${oldpath} ${newpath}
         done;
-        files=('~{sep="' '" file_table_in}')
+        files=('~{sep="' '" file_table_str}')
         for x in ${files[@]}; do
             fname=$(basename ${x})
             echo ${fname}
             oldpath=${x}
             echo ${oldpath}
             newpath="gs://${bucket}/UKBB-Data/~{sep="AND" phenocode}/${fname}"
-            echo ${newpath} >> file_table_in.txt
+            echo ${newpath} >> file_table_str.txt
             gsutil -m mv ${oldpath} ${newpath}
         done;
-        files=('~{sep="' '" data_table_in}')
+        files=('~{sep="' '" data_table_str}')
         for x in ${files[@]}; do
             fname=$(basename ${x})
             echo ${fname}
             oldpath=${x}
             echo ${oldpath}
             newpath="gs://${bucket}/UKBB-Data/~{sep="AND" phenocode}/${fname}"
-            echo ${newpath} >> data_table_in.txt
+            echo ${newpath} >> data_table_str.txt
             gsutil -m mv ${oldpath} ${newpath}
         done;
     >>>
     
     output {
-        Array[String] analysis_table = read_lines("analysis_table_in.txt")
-        Array[String] file_table = read_lines("file_table_in.txt")
-        Array[String] data_table = read_lines("data_table_in.txt")
+        Array[String] analysis_table = read_lines("analysis_table_str.txt")
+        Array[String] file_table = read_lines("file_table_str.txt")
+        Array[String] data_table = read_lines("data_table_str.txt")
     }
     
     runtime {
