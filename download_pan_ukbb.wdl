@@ -87,7 +87,7 @@ task move {
             oldpath=${x}
             echo ${oldpath}
             newpath="gs://${bucket}/UKBB-Data/~{sep="AND" phenocode}/${fname}"
-            echo ${newpath} > analysis_table_in.json
+            echo ${newpath} >> analysis_table_in.txt
             gsutil -m mv ${oldpath} ${newpath}
         done;
         files=('~{sep="' '" file_table_in}')
@@ -97,7 +97,7 @@ task move {
             oldpath=${x}
             echo ${oldpath}
             newpath="gs://${bucket}/UKBB-Data/~{sep="AND" phenocode}/${fname}"
-            echo ${newpath} > file_table_in.json
+            echo ${newpath} >> file_table_in.txt
             gsutil -m mv ${oldpath} ${newpath}
         done;
         files=('~{sep="' '" data_table_in}')
@@ -107,15 +107,15 @@ task move {
             oldpath=${x}
             echo ${oldpath}
             newpath="gs://${bucket}/UKBB-Data/~{sep="AND" phenocode}/${fname}"
-            echo ${newpath} > data_table_in.json
+            echo ${newpath} >> data_table_in.txt
             gsutil -m mv ${oldpath} ${newpath}
         done;
     >>>
     
     output {
-        Array[String] analysis_table = read_json("analysis_table_in.json")
-        Array[String] file_table = read_json("file_table_in.json")
-        Array[String] data_table = read_json("data_table_in.json")
+        Array[String] analysis_table = read_lines("analysis_table_in.txt")
+        Array[String] file_table = read_lines("file_table_in.txt")
+        Array[String] data_table = read_lines("data_table_in.txt")
     }
     
     runtime {
