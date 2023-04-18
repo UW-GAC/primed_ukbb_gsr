@@ -12,6 +12,7 @@ workflow download_pan_ukbb {
     
     call create {
         input: phenocode = phenocode,
+               bucket_name = bucket_name,
                population = population,
                conceptID = conceptID,
                disk_gb = disk_gb,
