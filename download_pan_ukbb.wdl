@@ -41,6 +41,7 @@ workflow download_pan_ukbb {
 task create {
     input {
         Array[String] phenocode
+        String bucket_name
         Array[String] population
         Array[String] conceptID
         Int disk_gb
@@ -51,7 +52,8 @@ task create {
         Rscript /usr/local/primed_ukbb_gsr/download_pan_ukbb.R \
             --phenocode ${sep=" " phenocode} \
             --population ${sep=" " population} \
-            --conceptID ${sep=" " conceptID}
+            --conceptID ${sep=" " conceptID} \
+            --bucket_name ${bucket_name}
     >>>
     
     output {
