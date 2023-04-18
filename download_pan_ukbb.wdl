@@ -3,6 +3,7 @@ version 1.0
 workflow download_pan_ukbb {
     input {
         Array[String]+ phenocode
+        String+ bucket_name
         Array[String] population = ["all_available"]
         Array[String] conceptID = ["TBD"]
         Int disk_gb = 25
@@ -21,6 +22,7 @@ workflow download_pan_ukbb {
         input: analysis_table_in = create.analysis_table,
                data_table_in = create.data_table,
                file_table_in = create.file_table,
+               bucket_name = bucket_name,
                phenocode = phenocode
     }
     
@@ -85,22 +87,31 @@ task move {
     
     command <<<
         #!/bin/bash
-        files=('~{sep="' '" analysis_table_in}' '~{sep="' '" data_table_in}' '~{sep="' '" file_table_in}')
-        line=1
-        bucket="fc-bb562a6c-b341-4f67-8016-c36ffd74b988"
-        for x in ${files[@]}; do
-            echo "File"${line}
-            ((line+=1))
-            fname=$(basename ${x})
-            echo ${fname}
-            oldpath=${x}
-            echo ${oldpath}
-            newpath="gs://${bucket}/UKBB-Data/~{sep="AND" phenocode}/${fname}"
-            echo ${newpath}
-            gsutil -m mv ${oldpath} ${newpath}
+        file_type=('analysis_table_in' 'data_table_in' 'file_table_in')
+        for t in ${file_type[@]}; do
+            files=('~{sep="' '" ${t}}')
+            line=1
+            bucket="fc-bb562a6c-b341-4f67-8016-c36ffd74b988"
+            for x in ${files[@]}; do
+                echo "File"${line}
+                ((line+=1))
+                fname=$(basename ${x})
+                echo ${fname}
+                oldpath=${x}
+                echo ${oldpath}
+                newpath="gs://${bucket}/UKBB-Data/~{sep="AND" phenocode}/${fname}"
+                echo ${newpath} >> ${t}.txt
+                gsutil -m mv ${oldpath} ${newpath}
+            done;
         done;
     >>>
-        
+    
+    output {
+        Array[String] analysis_table = read_lines("analysis_table_in.txt")
+        Array[String] file_table = read_lines("file_table_in.txt")
+        Array[String] data_table = read_lines("data_table_in.txt")
+    }
+    
     runtime {
         docker: "uwgac/primed-pan-ukbb:0.1.0"
     }
