@@ -20,16 +20,16 @@ workflow download_pan_ukbb {
     
     call move {
         input: analysis_table_in = create.analysis_table,
-               data_table_in = create.data_table,
                file_table_in = create.file_table,
+               data_table_in = create.data_table,
                bucket_name = bucket_name,
                phenocode = phenocode
     }
     
     output {
-        Array[File] analysis_table = create.analysis_table
-        Array[File] data_table = create.data_table
-        Array[File] file_table = create.file_table
+        Array[String] analysis_table = move.analysis_table
+        Array[String] file_table = move.file_table
+        Array[String] data_table = move.data_table
     }
     
      meta {
@@ -70,39 +70,45 @@ task create {
 task move {
     input {
         Array[String] analysis_table_in
-        Array[String] data_table_in
         Array[String] file_table_in
+        Array[String] data_table_in
         Array[String] phenocode
+        String bucket_name
     }
-    
-    # The command chunk below was adapted from:
-    #
-    # https://support.terra.bio/hc/en-us/community/
-    # posts/360068067031-Write-cromwell-output-to-
-    # its-own-folder-instead-of-the-root-directory
-    #                   and
-    # https://bioinformatics.stackexchange.com/
-    # questions/18827/how-do-i-use-bash-for-loops
-    # -to-loop-through-a-wdl-array
     
     command <<<
         #!/bin/bash
-        file_type=('analysis_table_in' 'data_table_in' 'file_table_in')
-        for t in ${file_type[@]}; do
-            files=('~{sep="' '" ${t}}')
-            line=1
-            bucket="fc-bb562a6c-b341-4f67-8016-c36ffd74b988"
-            for x in ${files[@]}; do
-                echo "File"${line}
-                ((line+=1))
-                fname=$(basename ${x})
-                echo ${fname}
-                oldpath=${x}
-                echo ${oldpath}
-                newpath="gs://${bucket}/UKBB-Data/~{sep="AND" phenocode}/${fname}"
-                echo ${newpath} >> ${t}.txt
-                gsutil -m mv ${oldpath} ${newpath}
-            done;
+        echo "Beginning bash script..."
+        bucket=~{bucket_name}
+        files=('~{sep="' '" analysis_table_in}')
+        for x in ${files[@]}; do
+            fname=$(basename ${x})
+            echo ${fname}
+            oldpath=${x}
+            echo ${oldpath}
+            newpath="gs://${bucket}/UKBB-Data/~{sep="AND" phenocode}/${fname}"
+            echo ${newpath} >> $analysis_table_in.txt
+            gsutil -m mv ${oldpath} ${newpath}
+        done;
+        files=('~{sep="' '" file_table_in}')
+        for x in ${files[@]}; do
+            fname=$(basename ${x})
+            echo ${fname}
+            oldpath=${x}
+            echo ${oldpath}
+            newpath="gs://${bucket}/UKBB-Data/~{sep="AND" phenocode}/${fname}"
+            echo ${newpath} >> $file_table_in.txt
+            gsutil -m mv ${oldpath} ${newpath}
+        done;
+        files=('~{sep="' '" data_table_in}')
+        for x in ${files[@]}; do
+            fname=$(basename ${x})
+            echo ${fname}
+            oldpath=${x}
+            echo ${oldpath}
+            newpath="gs://${bucket}/UKBB-Data/~{sep="AND" phenocode}/${fname}"
+            echo ${newpath} >> $data_table_in.txt
+            gsutil -m mv ${oldpath} ${newpath}
         done;
     >>>
     
