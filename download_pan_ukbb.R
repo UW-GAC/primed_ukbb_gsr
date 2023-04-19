@@ -232,6 +232,7 @@ head(data_VMF)
 for (input in phenocode_list) {
   phenotype_info <- manifest[manifest$phenocode %in% input, ]
   phenotype_name <- phenotype_info$description
+  print(phenotype_info$trait_type)
   phenotype_is_binary <- which_trait_type(phenotype_info$trait_type) == "binary"
   
   # Label step of the download
