@@ -49,6 +49,7 @@ bucket_name <- unlist(argv$bucket_name)
 print(phenocode_list)
 print(population_list)
 print(conceptID_list)
+print(bucket_name)
 
 
 # coerce conceptID to NA, if applicable
@@ -232,7 +233,6 @@ head(data_VMF)
 for (input in phenocode_list) {
   phenotype_info <- manifest[manifest$phenocode %in% input, ]
   phenotype_name <- phenotype_info$description
-  print(phenotype_info$trait_type)
   phenotype_is_binary <- which_trait_type(phenotype_info$trait_type) == "binary"
   
   # Label step of the download
