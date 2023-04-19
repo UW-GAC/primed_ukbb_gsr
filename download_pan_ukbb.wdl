@@ -54,7 +54,7 @@ task create {
             --phenocode ${sep=" " phenocode} \
             --population ${sep=" " population} \
             --conceptID ${sep=" " conceptID} \
-            --bucket_name ${bucket_name}
+            --bucket_name ~{bucket_name}
     >>>
     
     output {
