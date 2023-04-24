@@ -219,7 +219,8 @@ which_transf <- function(x){
 
 
 # save the date as text
-write.table(format(Sys.Date(), "%Y-%m-%d"), file = "date.txt")
+write.table(format(Sys.Date(), "%Y-%m-%d"), file = "date.txt",
+            row.names = FALSE, col.names = FALSE)
 
 
 # download the Pan-UK Biobank phenotype manifest
