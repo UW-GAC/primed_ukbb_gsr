@@ -189,12 +189,16 @@ which_sampsize <- function(x){
     return(list("n_ctrl" = n_controls,
                 "n_case" = n_cases,
                 "n_samp" = n_controls + n_cases,
-                "n_effective" = 4 / (1 / n_cases + 1 / n_controls)))
+                "n_effective" = 4 / (1 / n_cases + 1 / n_controls),
+                "weight_case" = n_cases / (n_controls + n_cases),
+                "weight_ctrl" = n_controls / (n_controls + n_cases)))
   } else {
     return(list("n_ctrl" = NA,
                 "n_case" = NA,
                 "n_samp" = n_cases,
-                "n_effective" = n_cases))
+                "n_effective" = n_cases,
+                "weight_case" = NA,
+                "weight_ctrl" = NA))
   }
 }
 
@@ -346,7 +350,7 @@ for (input in phenocode_list) {
       n_samp = NA,
       n_case = NA,
       n_ctrl = NA,
-      eff_sample_size = NA,
+      n_effective = NA,
       is_imputed = NA,
       imputation_quality_score = "info",
       heterogeneity_p_value = L0NA("heterogeneity_p_value"),
@@ -364,32 +368,39 @@ for (input in phenocode_list) {
              new =  names(rename[!is.na(rename)]),
              skip_absent = TRUE)
     
-    # subset to only columns in the population
-    data_temp <- data_temp[, intersect(c(c("chromosome", "position", "effect_allele", "other_allele", "rsID", "SNPID"), key),
-                                       colnames(data_temp)), with = FALSE]
+    
+    # subset to only columns in the rename field population
+    data_temp <- data_temp[, intersect(names(rename), colnames(data_temp)), with = FALSE]
     rm(list = "key")
+    
     
     # remove all rows where the p-value is NA
     print(data_temp)
     data_temp <- subset(data_temp, !is.na(data_temp$p_value))
     print(data_temp)
     
+    
     # construct 95% confidence intervals
     data_temp[, ':='(beta_ci_lower = beta + qnorm(0.025) * se,
                      beta_ci_upper = beta + qnorm(0.975) * se)]
+    
     
     # if the phenotype is binary, compute the odds ratio and corresponding confidence intervals
     if (phenotype_is_binary) {
       data_temp[, ':='(odds_ratio  = exp(beta),
                        OR_ci_lower = exp(beta_ci_lower),
-                       OR_ci_upper = exp(beta_ci_upper))]
+                       OR_ci_upper = exp(beta_ci_upper),
+                       effect_allele_freq = (which_sampsize(pop)$weight_case * eaf_case) + (which_sampsize(pop)$weight_case * eaf_ctrl))]
     }
+    
     
     # create new column for DNA strand
     data_temp[, ':='(strand = "forward")]
     
+    
     # create new column for SNPID
     data_temp[, ':='(SNPID = paste(chromosome, position, other_allele, effect_allele, sep = ":"))]
+    
     
     # direction of the beta estimate (code will not pass validation if exactly equal to 0)
     data_temp[, ':='(direction_of_effect = ifelse(beta < 0, "-",
@@ -412,9 +423,15 @@ for (input in phenocode_list) {
     if (any(!(required %in% colnames(data_temp)))) {
       warning(paste0("The following required mappings are missing in the provided dataset:\n       ",
                   paste0(required[!(required %in% colnames(data_temp))], collapse = "\n       ")))
+      stop("Workflow determined that the PRIMED data validation steps will fail.")
     }
     rm(list = c("required"))
     
+    
+    # remove all entirely missing columns
+    empty_cols <- names(which(colSums(is.na(data_temp)) == nrow(data_temp)))
+    dt[, (empty_cols) := NULL]    
+    rm(list = c("empty_cols"))
     
     ###############################################################
     ### run the analysis and file workflows for this population ###
