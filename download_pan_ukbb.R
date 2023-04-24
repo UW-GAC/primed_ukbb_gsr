@@ -363,10 +363,12 @@ for (input in phenocode_list) {
     )
     rm(list = c("pop_vars", "L0NA"))
     
+    
     # create duplicate columns for ref and alt since it is used twice
     data_temp[, ':='(ref2 = ref,
                      alt2 = alt)]
-  
+    
+    
     # rename the dataset to match PRIMED notation
     setnames(data_temp,
              old = unname(rename[!is.na(rename)]),
@@ -424,7 +426,9 @@ for (input in phenocode_list) {
     
     # remove all entirely missing columns
     empty_cols <- names(which(colSums(is.na(data_temp)) == nrow(data_temp)))
-    dt[, (empty_cols) := NULL]    
+    if (length(empty_cols) > 0) {
+      data_temp[, (empty_cols) := NULL]    
+    }
     rm(list = c("empty_cols"))
     
     
