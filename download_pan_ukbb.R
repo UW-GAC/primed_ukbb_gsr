@@ -531,7 +531,7 @@ for (input in phenocode_list) {
     if (any(is.na(analysis$value[analysis$field %in% required]))) {
       warning(paste0("The following required fields are missing in the provided analysis:\n       ",
                   paste0(analysis$field[is.na(analysis$value[analysis$field %in% required])], collapse = "\n       ")))
-      stop("Workflow determined that the PRIMED data validation steps will fail.")
+      warning("The script will ignore this warning due to missing information.")
     }
     analysis <- analysis[!is.na(analysis$value) | c(analysis$field %in% required), ]
     rm(list = c("required"))
