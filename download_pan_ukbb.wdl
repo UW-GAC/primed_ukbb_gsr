@@ -24,7 +24,8 @@ workflow download_pan_ukbb {
                file_table_str = create.file_table,
                data_table_str = create.data_table,
                phenocode = phenocode,
-               bucket_name = bucket_name
+               bucket_name = bucket_name,
+               date = create.date
     }
     
     output {
