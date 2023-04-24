@@ -218,6 +218,10 @@ which_transf <- function(x){
 }
 
 
+# save the date as text
+write.table(format(Sys.Date(), "%Y-%m-%d"), file = "date.txt")
+
+
 # download the Pan-UK Biobank phenotype manifest
 url <- "https://pan-ukb-us-east-1.s3.amazonaws.com/"
 url_manifest <- paste0(url, "sumstats_release/phenotype_manifest.tsv.bgz")
