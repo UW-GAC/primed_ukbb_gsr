@@ -417,21 +417,11 @@ for (input in phenocode_list) {
     rm(list = c("ddorder", "rename"))
     
     
-    # check if any required columns are missing
-    required <- c("chromosome", "position", "strand", "effect_allele", "other_allele",
-                  "effect_allele_freq", "p_value", "beta", "se", "is_imputed")
-    if (any(!(required %in% colnames(data_temp)))) {
-      warning(paste0("The following required mappings are missing in the provided dataset:\n       ",
-                  paste0(required[!(required %in% colnames(data_temp))], collapse = "\n       ")))
-      stop("Workflow determined that the PRIMED data validation steps will fail.")
-    }
-    rm(list = c("required"))
-    
-    
     # remove all entirely missing columns
     empty_cols <- names(which(colSums(is.na(data_temp)) == nrow(data_temp)))
     dt[, (empty_cols) := NULL]    
     rm(list = c("empty_cols"))
+    
     
     ###############################################################
     ### run the analysis and file workflows for this population ###
@@ -497,13 +487,36 @@ for (input in phenocode_list) {
       "analysis_method" = ifelse(phenotype_is_binary, "logistic mixed model", "linear mixed model"), # https://pan.ukbb.broadinstitute.org/docs/technical-overview
       "analysis_software" = "SAIGE implemented in Hail Batch")
     
-    
     analysis <- tibble(field = names(fields),
                        value = unlist(fields))
     
     
-    # remove missing, non-required fields
-    # required columns up-to-date with GSR data model as of April 8, 2023
+    ###################
+    ## validate data ##
+    ###################
+    
+    
+    # confirm required columns in the data model
+    required <- c("chromosome", "position", "strand", "effect_allele", "other_allele",
+                  "effect_allele_freq", "p_value", "beta", "se", "is_imputed")
+    if (analysis$value[analysis$field == "is_imputed"] %in% "TRUE") {
+      required <- c(required, "imputation_quality_score")
+    }
+    if (analysis$value[analysis$field == "trait_type"] %in% "binary") {
+      required <- c(required, "odds_ratio")
+    }
+    if (analysis$value[analysis$field == "is_meta_analysis"] %in% "TRUE") {
+      required <- c(required, "direction_of_effect", "heterogeneity_p_value")
+    }
+    if (any(!(required %in% colnames(data_temp)))) {
+      warning(paste0("The following required mappings are missing in the provided dataset:\n       ",
+                  paste0(required[!(required %in% colnames(data_temp))], collapse = "\n       ")))
+      stop("Workflow determined that the PRIMED data validation steps will fail.")
+    }
+    rm(list = c("required"))
+    
+    
+    # confirm required fields in the analysis table
     required <- c("gsr_source", "consent_code", "upload_date", "contributor_contact", "trait", "trait_type",
                   "trait_unit", "trait_transformation", "trait_definition", "covariates", "concept_id",
                   "reference_assembly", "n_variants", "genotyping_technology", "genotyping_platform",
@@ -515,7 +528,18 @@ for (input in phenocode_list) {
     if (analysis$value[analysis$field == "trait_type"] %in% "binary") {
       required <- c(required, "n_case", "n_ctrl")
     }
+    if (any(is.na(analysis$value[analysis$field %in% required]))) {
+      warning(paste0("The following required fields are missing in the provided analysis:\n       ",
+                  paste0(analysis$field[is.na(analysis$value[analysis$field %in% required])], collapse = "\n       ")))
+      stop("Workflow determined that the PRIMED data validation steps will fail.")
+    }
     analysis <- analysis[!is.na(analysis$value) | c(analysis$field %in% required), ]
+    rm(list = c("required"))
+    
+    
+    #################
+    ## save output ##
+    #################
     
     
     # save the analysis table
