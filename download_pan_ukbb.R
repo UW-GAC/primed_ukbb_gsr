@@ -507,7 +507,7 @@ for (input in phenocode_list) {
     
     # confirm required columns in the data model
     required <- c("chromosome", "position", "strand", "effect_allele", "other_allele",
-                  "effect_allele_freq", "p_value", "beta", "se", "is_imputed")
+                  "effect_allele_freq", "p_value", "beta", "se")
     if (analysis$value[analysis$field == "is_imputed"] %in% "TRUE") {
       required <- c(required, "imputation_quality_score")
     }
