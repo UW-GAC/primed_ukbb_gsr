@@ -24,8 +24,7 @@ workflow download_pan_ukbb {
                file_table_str = create.file_table,
                data_table_str = create.data_table,
                phenocode = phenocode,
-               bucket_name = bucket_name,
-               date = create.date
+               bucket_name = bucket_name
     }
     
     output {
@@ -62,7 +61,6 @@ task create {
         Array[File] analysis_table = glob("*_analysis.tsv")
         Array[File] file_table = glob("*_file.tsv")
         Array[File] data_table = glob("*_data.tsv.gz")
-        Array[File] date = glob("*date.txt")
     }
     
     runtime {
@@ -78,13 +76,11 @@ task move {
         Array[String] file_table_str
         Array[String] data_table_str
         Array[String] phenocode
-        Array[File] date
         String bucket_name
     }
     
     command <<<
         #!/bin/bash
-        read -r date < ~{date}
         echo "Beginning bash script..."
         bucket=~{bucket_name}
         files=('~{sep="' '" analysis_table_str}')
@@ -93,7 +89,7 @@ task move {
             echo ${fname}
             oldpath=${x}
             echo ${oldpath}
-            newpath="gs://${bucket}/UKBB-Data/~{sep="AND" phenocode}_$date/${fname}"
+            newpath="gs://${bucket}/UKBB-Data/~{sep="AND" phenocode}/${fname}"
             echo ${newpath} >> analysis_table_str.txt
             gsutil -m mv ${oldpath} ${newpath}
         done;
@@ -103,7 +99,7 @@ task move {
             echo ${fname}
             oldpath=${x}
             echo ${oldpath}
-            newpath="gs://${bucket}/UKBB-Data/~{sep="AND" phenocode}_$date/${fname}"
+            newpath="gs://${bucket}/UKBB-Data/~{sep="AND" phenocode}/${fname}"
             echo ${newpath} >> file_table_str.txt
             gsutil -m mv ${oldpath} ${newpath}
         done;
@@ -113,7 +109,7 @@ task move {
             echo ${fname}
             oldpath=${x}
             echo ${oldpath}
-            newpath="gs://${bucket}/UKBB-Data/~{sep="AND" phenocode}_$date/${fname}"
+            newpath="gs://${bucket}/UKBB-Data/~{sep="AND" phenocode}/${fname}"
             echo ${newpath} >> data_table_str.txt
             gsutil -m mv ${oldpath} ${newpath}
         done;
