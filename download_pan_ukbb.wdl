@@ -61,6 +61,7 @@ task create {
         Array[File] analysis_table = glob("*_analysis.tsv")
         Array[File] file_table = glob("*_file.tsv")
         Array[File] data_table = glob("*_data.tsv.gz")
+        Array[File] date = glob("*date.txt")
     }
     
     runtime {
@@ -76,11 +77,13 @@ task move {
         Array[String] file_table_str
         Array[String] data_table_str
         Array[String] phenocode
+        Array[File] date
         String bucket_name
     }
     
     command <<<
         #!/bin/bash
+        read -r date < ~{date}
         echo "Beginning bash script..."
         bucket=~{bucket_name}
         files=('~{sep="' '" analysis_table_str}')
@@ -89,7 +92,7 @@ task move {
             echo ${fname}
             oldpath=${x}
             echo ${oldpath}
-            newpath="gs://${bucket}/UKBB-Data/~{sep="AND" phenocode}/${fname}"
+            newpath="gs://${bucket}/UKBB-Data/~{sep="AND" phenocode}_$date/${fname}"
             echo ${newpath} >> analysis_table_str.txt
             gsutil -m mv ${oldpath} ${newpath}
         done;
@@ -99,7 +102,7 @@ task move {
             echo ${fname}
             oldpath=${x}
             echo ${oldpath}
-            newpath="gs://${bucket}/UKBB-Data/~{sep="AND" phenocode}/${fname}"
+            newpath="gs://${bucket}/UKBB-Data/~{sep="AND" phenocode}_$date/${fname}"
             echo ${newpath} >> file_table_str.txt
             gsutil -m mv ${oldpath} ${newpath}
         done;
@@ -109,7 +112,7 @@ task move {
             echo ${fname}
             oldpath=${x}
             echo ${oldpath}
-            newpath="gs://${bucket}/UKBB-Data/~{sep="AND" phenocode}/${fname}"
+            newpath="gs://${bucket}/UKBB-Data/~{sep="AND" phenocode}_$date/${fname}"
             echo ${newpath} >> data_table_str.txt
             gsutil -m mv ${oldpath} ${newpath}
         done;
