@@ -392,7 +392,7 @@ for (input in phenocode_list) {
       data_temp[, ':='(odds_ratio  = exp(beta),
                        OR_ci_lower = exp(beta_ci_lower),
                        OR_ci_upper = exp(beta_ci_upper),
-                       effect_allele_freq = (which_sampsize(pop)$weight_case * eaf_case) + (which_sampsize(pop)$weight_case * eaf_ctrl))]
+                       effect_allele_freq = (which_sampsize(pop)$weight_case * eaf_case) + (which_sampsize(pop)$weight_ctrl * eaf_ctrl))]
     }
     
     
