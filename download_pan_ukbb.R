@@ -218,11 +218,6 @@ which_transf <- function(x){
 }
 
 
-# save the date as text
-write.table(format(Sys.Date(), "%Y-%m-%d"), file = "date.txt",
-            row.names = FALSE, col.names = FALSE)
-
-
 # download the Pan-UK Biobank phenotype manifest
 url <- "https://pan-ukb-us-east-1.s3.amazonaws.com/"
 url_manifest <- paste0(url, "sumstats_release/phenotype_manifest.tsv.bgz")
@@ -446,7 +441,7 @@ for (input in phenocode_list) {
       "link" = NA,
       "release_date" = NA,
       "consent_code" = "NRES",
-      "upload_date" = format(Sys.Date(), "%m/%d/%Y"),
+      "upload_date" = format(Sys.Date(), "%m/%d/%Y"), # format(Sys.Date(), "%Y-%m-%d") is an alternative format to consider
       "contributor_contact" = "primedconsortium@uw.edu",
       "trait" = phenotype_name,
       "trait_type" = which_trait_type(phenotype_info$trait_type),
