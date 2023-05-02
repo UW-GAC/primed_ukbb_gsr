@@ -441,7 +441,7 @@ for (input in phenocode_list) {
       "link" = NA,
       "release_date" = NA,
       "consent_code" = "NRES",
-      "upload_date" = format(Sys.Date(), "%m/%d/%Y"), # format(Sys.Date(), "%Y-%m-%d") is an alternative format to consider
+      "upload_date" = format(Sys.Date(), "%Y-%m-%d"),
       "contributor_contact" = "primedconsortium@uw.edu",
       "trait" = phenotype_name,
       "trait_type" = which_trait_type(phenotype_info$trait_type),
@@ -455,7 +455,7 @@ for (input in phenocode_list) {
       "mapped_trait" = NA,
       "reference_assembly" = "GRCh37", # found on https://pan.ukbb.broadinstitute.org/docs/per-phenotype-files/index.html
       "dbsnp_build_version" = NA,
-      "n_variants" = nrow(data_temp), # use total number of variants with p-values
+      "n_variants" = nrow(data_temp), # number of variants with non-missing p-values: see subset(., !is.na(.$p_value))
       "min_MAF_filter" = NA,
       "min_MAC_filter" = 20,
       "genotyping_technology" = "genome-wide array",
@@ -486,7 +486,7 @@ for (input in phenocode_list) {
       "population_descriptor" = "Genetic ancestry group", # https://pan.ukbb.broadinstitute.org/docs/qc
       "population_labels" = which_pops(pop),
       "population_proportions" = NA,
-      "countries_of_recruitment" = "England | Scotland | Wales", # I believe that Northern Ireland is not included in UK Biobank
+      "countries_of_recruitment" = "United Kingdom",
       "countries_of_birth" = NA,
       "analysis_method" = ifelse(phenotype_is_binary, "logistic mixed model", "linear mixed model"), # https://pan.ukbb.broadinstitute.org/docs/technical-overview
       "analysis_software" = "SAIGE implemented in Hail Batch")
