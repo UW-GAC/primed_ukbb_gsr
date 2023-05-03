@@ -3,6 +3,7 @@ version 1.0
 workflow download_pan_ukbb {
     input {
         Array[String]+ phenocode
+        Array[String] coding = ["N"]
         String bucket_name
         Array[String] population = ["all_available"]
         Array[String] conceptID = ["TBD"]
@@ -12,6 +13,7 @@ workflow download_pan_ukbb {
     
     call create {
         input: phenocode = phenocode,
+               coding = coding,
                bucket_name = bucket_name,
                population = population,
                conceptID = conceptID,
@@ -24,6 +26,7 @@ workflow download_pan_ukbb {
                file_table_str = create.file_table,
                data_table_str = create.data_table,
                phenocode = phenocode,
+               coding = coding,
                bucket_name = bucket_name
     }
     
@@ -42,6 +45,7 @@ workflow download_pan_ukbb {
 task create {
     input {
         Array[String] phenocode
+        Array[String] coding
         String bucket_name
         Array[String] population
         Array[String] conceptID
@@ -52,6 +56,7 @@ task create {
     command <<<
         Rscript /usr/local/primed_ukbb_gsr/download_pan_ukbb.R \
             --phenocode ~{sep=" " phenocode} \
+            --coding ~{sep=" " coding} \
             --population ~{sep=" " population} \
             --conceptID ~{sep=" " conceptID} \
             --bucket_name ~{bucket_name}
@@ -76,6 +81,7 @@ task move {
         Array[String] file_table_str
         Array[String] data_table_str
         Array[String] phenocode
+        Array[String] coding
         String bucket_name
     }
     
@@ -89,7 +95,7 @@ task move {
             echo ${fname}
             oldpath=${x}
             echo ${oldpath}
-            newpath="gs://${bucket}/UKBB-Data/~{sep="AND" phenocode}/${fname}"
+            newpath="gs://${bucket}/UKBB-Data/~{sep="" phenocode}_~{sep="" coding}/${fname}"
             echo ${newpath} >> analysis_table_str.txt
             gsutil -m mv ${oldpath} ${newpath}
         done;
@@ -99,7 +105,7 @@ task move {
             echo ${fname}
             oldpath=${x}
             echo ${oldpath}
-            newpath="gs://${bucket}/UKBB-Data/~{sep="AND" phenocode}/${fname}"
+            newpath="gs://${bucket}/UKBB-Data/~{sep="" phenocode}_~{sep="" coding}/${fname}"
             echo ${newpath} >> file_table_str.txt
             gsutil -m mv ${oldpath} ${newpath}
         done;
@@ -109,7 +115,7 @@ task move {
             echo ${fname}
             oldpath=${x}
             echo ${oldpath}
-            newpath="gs://${bucket}/UKBB-Data/~{sep="AND" phenocode}/${fname}"
+            newpath="gs://${bucket}/UKBB-Data/~{sep="" phenocode}_~{sep="" coding}/${fname}"
             echo ${newpath} >> data_table_str.txt
             gsutil -m mv ${oldpath} ${newpath}
         done;
