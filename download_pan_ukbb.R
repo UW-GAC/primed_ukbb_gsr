@@ -62,7 +62,7 @@ print(bucket_name)
 
 
 # make grid for desired codings of phenotype
-input_grid <- expand.grid(phenocode, coding)
+input_grid <- expand.grid(phenocode_list, coding_list)
 colnames(input_grid) <- c("phenocode", "coding")
 
 
