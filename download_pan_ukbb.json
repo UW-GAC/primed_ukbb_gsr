@@ -1,5 +1,6 @@
 {
     "download_pan_ukbb.phenocode": ["30780"],
+    "download_pan_ukbb.phenocode": ["N"],
     "download_pan_ukbb.population": ["all_available"],
     "download_pan_ukbb.conceptID": ["ExampleConceptID"],
     "download_pan_ukbb.disk_gb": 25,
