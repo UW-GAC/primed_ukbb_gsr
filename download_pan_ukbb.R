@@ -473,7 +473,7 @@ for (q in 1:nrow(input_grid)) {
       "consent_code" = "NRES",
       "upload_date" = format(Sys.Date(), "%Y-%m-%d"),
       "contributor_contact" = "primedconsortium@uw.edu",
-      "trait" = ifelse(is.na(phenotype_name), phenotype_name, paste(phenotype_name, coding_name, sep = ", "))
+      "trait" = ifelse(is.na(coding_name), phenotype_name, paste(phenotype_name, coding_name, sep = ", "))
       "trait_type" = which_trait_type(phenotype_info$trait_type),
       "trait_unit" = ifelse(phenotype_is_binary, "binary", "unknown"),
       "trait_transformation" = which_transf(phenotype_info$modifier),
