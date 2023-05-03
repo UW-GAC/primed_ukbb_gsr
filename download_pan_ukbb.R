@@ -19,6 +19,13 @@ p <- add_argument(parser = p,
                   help = "Identify the unique code of the phenotype(s) as described in the Pan-UK Biobank phenotype manifest.")
 
 p <- add_argument(parser = p,
+                  arg = "--coding",
+                  type = "character",
+                  nargs = Inf,
+                  help = "For categorical variables, input the coding to specify which category you have interest in.
+                          This should correspond to the phenocde you input, as applicable.")
+
+p <- add_argument(parser = p,
                   arg = "--population",
                   type = "character",
                   nargs = Inf,
@@ -41,15 +48,22 @@ p <- add_argument(parser = p,
 
 argv <- parse_args(parser = p)
 phenocode_list <- argv$phenocode
+coding_list <- argv$coding
 population_list <- argv$population
 conceptID_list <- argv$conceptID
 bucket_name <- unlist(argv$bucket_name)
 
 # display the user inputs
 print(phenocode_list)
+print(coding_list)
 print(population_list)
 print(conceptID_list)
 print(bucket_name)
+
+
+# make grid for desired codings of phenotype
+input_grid <- expand.grid(phenocode, coding)
+colnames(input_grid) <- c("phenocode", "coding")
 
 
 # coerce conceptID to NA, if applicable
@@ -234,8 +248,22 @@ head(data_VMF)
 
 
 # identify if the phenotype is binary
-for (input in phenocode_list) {
-  phenotype_info <- manifest[manifest$phenocode %in% input, ]
+for (q in 1:nrow(input_grid)) {
+  phenotype_info <- manifest[manifest$phenocode %in% input_grid[q, "phenocode"], ]
+  
+  # if user inputs a coding, subset the files accordingly
+  if (!identical(unlist(coding_list), "N")) {
+    phenotype_info <- phenotype_info[phenotype_info$coding %in% input_grid[q, "coding"], ]
+  }
+  
+  # check to make sure only one phenotype matches the input
+  if (nrow(phenotype_info) == 0) {
+    stop("No phenotypes match the provided phenocode/coding pair.")
+  } else if (nrow(phenotype_info) > 1) {
+    stop("Multiple phenotypes match the provided phenocode/coding pair.")
+  }
+  
+  # label key information about the phenotype
   phenotype_name <- phenotype_info$description
   phenotype_is_binary <- which_trait_type(phenotype_info$trait_type) == "binary"
   
@@ -451,7 +479,7 @@ for (input in phenocode_list) {
                                   phenotype_info$description_more,
                                   phenotype_info$description), ##### Longer definition not always given. #####
       "covariates" = "Age | Sex | Age * Sex | Age^2 | Age^2 * Sex | First 10 principal components",
-      "concept_id" = conceptID_list[which(phenocode_list == input)], # We need a formal rule for which to use: https://athena.ohdsi.org/search-terms/start
+      "concept_id" = conceptID_list[which(phenocode_list == input_grid[q, "phenocode"])], # We need a formal rule for which to use: https://athena.ohdsi.org/search-terms/start
       "mapped_trait" = NA,
       "reference_assembly" = "GRCh37", # found on https://pan.ukbb.broadinstitute.org/docs/per-phenotype-files/index.html
       "dbsnp_build_version" = NA,
@@ -574,7 +602,9 @@ for (input in phenocode_list) {
       
       # enter population/chromosome specific information into the file table
       file_table[chr, ] <- list(md5sum     = md5sum(files = outfile1),
-                                file_path  = file.path("gs:/", bucket_name, "UKBB-Data", input, outfile1),
+                                file_path  = file.path("gs:/", bucket_name, "UKBB-Data",
+                                                       paste(input_grid[q, "phenocode"], input_grid[q, "coding"], sep = "_"),
+                                                       outfile1),
                                 file_type  = "data",
                                 n_variants = nrow(data_temp[as.character(unique_chr[chr])]),
                                 chromosome = unique_chr[chr])
