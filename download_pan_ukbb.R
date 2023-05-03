@@ -131,7 +131,7 @@ which_trait_type <- function(x){
   } else if (x %in% c("prescriptions", "icd10", "phecode")) {
     return("binary")
   } else if (x %in% c("categorical")) {
-    return("categorical")
+    return("binary") # Tests appear to be collections of binary tests. Revist if necessary.
   }
 }
 
