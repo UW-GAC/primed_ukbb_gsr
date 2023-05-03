@@ -64,6 +64,7 @@ print(bucket_name)
 # make grid for desired codings of phenotype
 input_grid <- expand.grid(phenocode_list, coding_list)
 colnames(input_grid) <- c("phenocode", "coding")
+phenocode_coding <- apply(input_grid, 1, function(x){paste(x, collapse = "_")})
 
 
 # coerce conceptID to NA, if applicable
@@ -265,6 +266,7 @@ for (q in 1:nrow(input_grid)) {
   
   # label key information about the phenotype
   phenotype_name <- phenotype_info$description
+  coding_name <- phenotype_info$coding_description
   phenotype_is_binary <- which_trait_type(phenotype_info$trait_type) == "binary"
   
   # Label step of the download
@@ -471,7 +473,7 @@ for (q in 1:nrow(input_grid)) {
       "consent_code" = "NRES",
       "upload_date" = format(Sys.Date(), "%Y-%m-%d"),
       "contributor_contact" = "primedconsortium@uw.edu",
-      "trait" = phenotype_name,
+      "trait" = ifelse(is.na(phenotype_name), phenotype_name, paste(phenotype_name, coding_name, sep = ", "))
       "trait_type" = which_trait_type(phenotype_info$trait_type),
       "trait_unit" = ifelse(phenotype_is_binary, "binary", "unknown"),
       "trait_transformation" = which_transf(phenotype_info$modifier),
@@ -575,7 +577,7 @@ for (q in 1:nrow(input_grid)) {
     
     
     # save the analysis table
-    outfile2 <- paste0(gsub(" ", "", phenotype_name), "_", pop, "_analysis.tsv")
+    outfile2 <- paste0(gsub(" ", "", phenocode_coding[q]), "_", pop, "_analysis.tsv")
     fwrite(analysis, outfile2, sep = "\t")
     
     
@@ -596,7 +598,7 @@ for (q in 1:nrow(input_grid)) {
     
     for (chr in 1:length(unique_chr)) {
       # save the wrangled data
-      outfile1 <- paste0(gsub(" ", "", phenotype_name), "_", pop, "_", unique_chr[chr], "_data.tsv.gz")
+      outfile1 <- paste0(gsub(" ", "", phenocode_coding[q]), "_", pop, "_", unique_chr[chr], "_data.tsv.gz")
       fwrite(data_temp[as.character(unique_chr[chr])], outfile1, sep = "\t") # save to the local directory
       
       
@@ -612,7 +614,7 @@ for (q in 1:nrow(input_grid)) {
     
     
     # save the file table
-    outfile3 <- paste0(gsub(" ", "", phenotype_name), "_", pop, "_file.tsv")
+    outfile3 <- paste0(gsub(" ", "", phenocode_coding[q]), "_", pop, "_file.tsv")
     fwrite(file_table, outfile3, sep = "\t")
     
     
