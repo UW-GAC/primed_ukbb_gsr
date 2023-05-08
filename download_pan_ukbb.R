@@ -438,7 +438,7 @@ for (q in 1:nrow(input_grid)) {
     data_temp[, ':='(direction_of_effect = ifelse(beta < 0, "-",
                                                  ifelse(beta > 0, "+", "0")))]
     if (any(data_temp$direction_of_effect %in% "0")) {
-      warning('Beta estimate is exactly equal to 0, so sign is neither "-" or "+"')
+      stop('Beta estimate is exactly equal to 0, so sign is neither "-" or "+"')
     }
     
     
@@ -597,6 +597,9 @@ for (q in 1:nrow(input_grid)) {
     
     
     for (chr in 1:length(unique_chr)) {
+      # print the subsetted data
+      print(head(data_temp[as.character(unique_chr[chr])]))
+      
       # save the wrangled data
       outfile1 <- paste0(gsub(" ", "", phenocode_coding[q]), "_", pop, "_", unique_chr[chr], "_data.tsv.gz")
       fwrite(data_temp[as.character(unique_chr[chr])], outfile1, sep = "\t") # save to the local directory
