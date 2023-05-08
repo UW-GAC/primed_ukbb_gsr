@@ -409,8 +409,9 @@ for (q in 1:nrow(input_grid)) {
     # remove all rows where the p-value is NA
     print(data_temp)
     data_temp <- subset(data_temp, !is.na(data_temp$p_value))
-    print(data_temp)
     
+    # if data is completely empty, skip to the next population
+    if (nrow(data_temp) == 0 | ncol(data_temp) == 0) {next}
     
     # construct 95% confidence intervals
     data_temp[, ':='(beta_ci_lower = beta + qnorm(0.025) * se,
@@ -598,7 +599,7 @@ for (q in 1:nrow(input_grid)) {
     
     for (chr in 1:length(unique_chr)) {
       # print the subsetted data
-      print(head(data_temp[as.character(unique_chr[chr])]))
+      dim(data_temp[as.character(unique_chr[chr])])
       
       # save the wrangled data
       outfile1 <- paste0(gsub(" ", "", phenocode_coding[q]), "_", pop, "_", unique_chr[chr], "_data.tsv.gz")
