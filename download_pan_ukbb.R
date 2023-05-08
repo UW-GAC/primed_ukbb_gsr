@@ -407,11 +407,17 @@ for (q in 1:nrow(input_grid)) {
     
     
     # remove all rows where the p-value is NA
-    print(data_temp)
+    print(head(data_temp)); print(dim(data_temp))
     data_temp <- subset(data_temp, !is.na(data_temp$p_value))
+    print(head(data_temp)); print(dim(data_temp))
+    
     
     # if data is completely empty, skip to the next population
-    if (nrow(data_temp) == 0 | ncol(data_temp) == 0) {next}
+    if (nrow(data_temp) == 0 | ncol(data_temp) == 0) {
+      print(paste("The dataset is empty for", pop, "with phenotype", phenotype_name, coding_name))
+      next
+    }
+    
     
     # construct 95% confidence intervals
     data_temp[, ':='(beta_ci_lower = beta + qnorm(0.025) * se,
@@ -451,11 +457,13 @@ for (q in 1:nrow(input_grid)) {
     
     
     # remove all entirely missing columns
+    print(dim(data_temp))
     empty_cols <- names(which(colSums(is.na(data_temp)) == nrow(data_temp)))
     if (length(empty_cols) > 0) {
       data_temp[, (empty_cols) := NULL]    
     }
     rm(list = c("empty_cols"))
+    print(dim(data_temp))
     
     
     ###############################################################
