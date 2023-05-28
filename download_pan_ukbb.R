@@ -26,6 +26,13 @@ p <- add_argument(parser = p,
                           This should correspond to the phenocde you input, as applicable.")
 
 p <- add_argument(parser = p,
+                  arg = "--modifier",
+                  type = "character",
+                  nargs = Inf,
+                  help = "If the variable transformation (aka modifier) helps to uniquely identify your phenotype of interest,
+                          then use it as input.")
+
+p <- add_argument(parser = p,
                   arg = "--population",
                   type = "character",
                   nargs = Inf,
@@ -49,22 +56,25 @@ p <- add_argument(parser = p,
 argv <- parse_args(parser = p)
 phenocode_list <- argv$phenocode
 coding_list <- argv$coding
+modifier_list <- argv$modifier
 population_list <- argv$population
 conceptID_list <- argv$conceptID
 bucket_name <- unlist(argv$bucket_name)
 
+
 # display the user inputs
 print(phenocode_list)
 print(coding_list)
+print(modifier_list)
 print(population_list)
 print(conceptID_list)
 print(bucket_name)
 
 
-# make grid for desired codings of phenotype
-input_grid <- expand.grid(phenocode_list, coding_list)
-colnames(input_grid) <- c("phenocode", "coding")
-phenocode_coding <- apply(input_grid, 1, function(x){paste(x, collapse = "_")})
+# make grid to organize all user inputs (force to accept only the first input)
+input_grid <- matrix(c(phenocode_list[1], coding_list[1], modifier_list[1]), nrow = 1)
+colnames(input_grid) <- c("phenocode", "coding", "modifier")
+phe_cod_mod <- apply(input_grid, 1, function(x){paste(x, collapse = "_")})
 
 
 # coerce conceptID to NA, if applicable
@@ -250,18 +260,28 @@ head(data_VMF)
 
 # identify if the phenotype is binary
 for (q in 1:nrow(input_grid)) {
-  phenotype_info <- manifest[manifest$phenocode %in% input_grid[q, "phenocode"], ]
   
-  # if user inputs a coding, subset the files accordingly
-  if (!identical(unlist(coding_list), "N")) {
-    phenotype_info <- phenotype_info[phenotype_info$coding %in% input_grid[q, "coding"], ]
+  # use inputs to search for one single phenotype of interest
+  find_phenocode <- manifest$phenocode %in% input_grid[q, "phenocode"]
+  find_coding    <- manifest$coding %in% input_grid[q, "coding"]
+  find_modifier  <- manifest$modifier %in% input_grid[q, "modifier"]
+  my_filter <- if ((input_grid[q, "coding"] %in% "NO") & (input_grid[q, "modifier"] %in% "NO")) {
+    find_phenocode
+  } else if (!(input_grid[q, "coding"] %in% "NO") & (input_grid[q, "modifier"] %in% "NO")) {
+    find_phenocode & find_coding
+  } else if ((input_grid[q, "coding"] %in% "NO") & !(input_grid[q, "modifier"] %in% "NO")) {
+    find_phenocode & find_modifier
+  } else {
+    find_phenocode & find_coding & find_modifier
   }
+  phenotype_info <- manifest[my_filter, ]
+  rm(list = c("my_filter", "find_phenocode", "find_coding", "find_modifier"))
   
   # check to make sure only one phenotype matches the input
   if (nrow(phenotype_info) == 0) {
-    stop("No phenotypes match the provided phenocode/coding pair.")
+    stop("No phenotypes match the provided phenocode/coding/modifier list.")
   } else if (nrow(phenotype_info) > 1) {
-    stop("Multiple phenotypes match the provided phenocode/coding pair.")
+    stop("Multiple phenotypes match the provided phenocode/coding/modifier list.")
   }
   
   # label key information about the phenotype
@@ -586,7 +606,7 @@ for (q in 1:nrow(input_grid)) {
     
     
     # save the analysis table
-    outfile2 <- paste0(gsub(" ", "", phenocode_coding[q]), "_", pop, "_analysis.tsv")
+    outfile2 <- paste0(gsub(" ", "", phe_cod_mod[q]), "_", pop, "_analysis.tsv")
     fwrite(analysis, outfile2, sep = "\t")
     
     
@@ -610,14 +630,13 @@ for (q in 1:nrow(input_grid)) {
       dim(data_temp[as.character(unique_chr[chr])])
       
       # save the wrangled data
-      outfile1 <- paste0(gsub(" ", "", phenocode_coding[q]), "_", pop, "_", unique_chr[chr], "_data.tsv.gz")
+      outfile1 <- paste0(gsub(" ", "", phe_cod_mod[q]), "_", pop, "_", unique_chr[chr], "_data.tsv.gz")
       fwrite(data_temp[as.character(unique_chr[chr])], outfile1, sep = "\t") # save to the local directory
       
       
       # enter population/chromosome specific information into the file table
       file_table[chr, ] <- list(md5sum     = md5sum(files = outfile1),
-                                file_path  = file.path("gs:/", bucket_name, "UKBB-Data",
-                                                       paste(input_grid[q, "phenocode"], input_grid[q, "coding"], sep = "_"),
+                                file_path  = file.path("gs:/", bucket_name, "UKBB-Data", phe_cod_mod[q], sep = "_"),
                                                        outfile1),
                                 file_type  = "data",
                                 n_variants = nrow(data_temp[as.character(unique_chr[chr])]),
@@ -626,7 +645,7 @@ for (q in 1:nrow(input_grid)) {
     
     
     # save the file table
-    outfile3 <- paste0(gsub(" ", "", phenocode_coding[q]), "_", pop, "_file.tsv")
+    outfile3 <- paste0(gsub(" ", "", phe_cod_mod[q]), "_", pop, "_file.tsv")
     fwrite(file_table, outfile3, sep = "\t")
     
     
