@@ -636,8 +636,7 @@ for (q in 1:nrow(input_grid)) {
       
       # enter population/chromosome specific information into the file table
       file_table[chr, ] <- list(md5sum     = md5sum(files = outfile1),
-                                file_path  = file.path("gs:/", bucket_name, "UKBB-Data", phe_cod_mod[q], sep = "_"),
-                                                       outfile1),
+                                file_path  = file.path("gs:/", bucket_name, "UKBB-Data", phe_cod_mod[q], outfile1),
                                 file_type  = "data",
                                 n_variants = nrow(data_temp[as.character(unique_chr[chr])]),
                                 chromosome = unique_chr[chr])
