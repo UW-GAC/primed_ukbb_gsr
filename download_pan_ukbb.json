@@ -1,8 +1,10 @@
 {
-    "download_pan_ukbb.phenocode": ["30780"],
-    "download_pan_ukbb.phenocode": ["N"],
+    "download_pan_ukbb.bucket_name": "fc-...",
+    "download_pan_ukbb.phenocode": ["411"],
+    "download_pan_ukbb.coding": ["NO"],
+    "download_pan_ukbb.modifier": ["NO"],
     "download_pan_ukbb.population": ["all_available"],
-    "download_pan_ukbb.conceptID": ["ExampleConceptID"],
+    "download_pan_ukbb.conceptID": ["TBD"],
     "download_pan_ukbb.disk_gb": 25,
     "download_pan_ukbb.mem_gb": 50
 }
