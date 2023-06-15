@@ -4,9 +4,11 @@ Visit the Pan-UK Biobank phenotype manifest [Google Sheets webpage](https://docs
 
 <br/>
 
-The "download_pan_ukbb" AnVIL workflow has two required inputs and seven optional inputs:
+### Workflow inputs
 
-### (Required)
+The "download_pan_ukbb" AnVIL workflow has two required inputs and six optional inputs:
+
+#### Required:
 
 #### 1. bucket_name
 
@@ -16,23 +18,23 @@ In your AnVIL workspace, go to Dashboard &rarr; Cloud Information &rarr; Bucket 
 
 In the phenotype manifest, most traits can be uniquely identified using the "phenocode" column alone. If a trait you wish to download has a unique phenocode, then you can leave the "coding" and "modifier" inputs empty, which the WDL script will label as, "NO", by default.
 
-### (Optional)
+#### Optional:
 
-#### 4. coding
+#### 3. coding
 
 If a trait you wish to download does not have a unique phenocode, then you may need "coding", "modifier", or both to uniquely identify a trait. For example, to download one of the colorectal cancer traits, you need to set both: <br/>
 <code>"download_pan_ukbb.phenocode": ["20001"]</code> <br/>
 <code>"download_pan_ukbb.coding": ["1020"]</code> <br/>
 because this particular trait is uniquely identified in the phenotype manifest by this phenocode and coding. Note that we can still leave "modifier" empty because it is not needed to identify this trait.
 
-#### 5. modifier
+#### 4. modifier
 
 Similar as above, to download one of the blood pressure traits, you need to set both: <br/>
 <code>"download_pan_ukbb.phenocode": ["DBP"]</code> <br/>
 <code>"download_pan_ukbb.modifier": ["combined_medadj_raw"]</code> <br/>
 because this particular trait is uniquely identified in the phenotype manifest by this phenocode and modifier. Note that we can still leave "coding" empty because it is not needed to identify this trait.
 
-#### 6. population
+#### 5. population
 
 By default, all available data is downloaded. If you wish to download data for only a particular population, or only a meta analysis or high-quality meta analysis, you can specify which populations should be downloaded using a subset of the following list: <br/>
 <code>"download_pan_ukbb.population": ["meta", "metaHQ", "AFR", "AMR", "CSA", "EAS", "EUR", "MID"]</code>.
@@ -49,15 +51,15 @@ Note that the population abbreviations from the [Pan UKBB website](https://pan.u
 | EUR          | European ancestry             |
 | MID          | Middle Eastern ancestry       |
 
-#### 7. conceptID
+#### 6. conceptID
 
 If you know the concept ID of the trait you are downloading, please specify it here. If you are unsure which concept ID the trait corresponds to, this field can be left blank and it will be labeled "TBD".
 
-#### 8. disk_gb
+#### 7. disk_gb
 
 If you encounter an error regarding disk space, i.e. the instance does not have enough space to save both the raw and processed data, then you can manually increase disk space here. For most purposes, the default will suffice.
 
-#### 9. mem_gb
+#### 8. mem_gb
 
 If you encounter an error regarding memory, i.e. the R script is timing out or crashing without a clear coding error, then you can manually increase memory here to determine if that resolves the issue. For most purposes, the default will suffice. Increasing memory may be especially useful for traits with large sample sizes.
 
