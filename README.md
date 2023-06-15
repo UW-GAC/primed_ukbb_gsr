@@ -23,14 +23,14 @@ In the phenotype manifest, most traits can be uniquely identified using the "phe
 If a trait you wish to download does not have a unique phenocode, then you may need "coding", "modifier", or both to uniquely identify a trait. For example, to download one of the colorectal cancer traits, you need to set both: <br/>
 <code>"download_pan_ukbb.phenocode": ["20001"]</code> <br/>
 <code>"download_pan_ukbb.coding": ["1020"]</code> <br/>
-because the particular trait is uniquely identified in the phenotype manifest by this phenocode and coding. Note that we can still leave "modifier" empty because it is not needed to identify this trait.
+because this particular trait is uniquely identified in the phenotype manifest by this phenocode and coding. Note that we can still leave "modifier" empty because it is not needed to identify this trait.
 
 #### 5. modifier
 
 Similar as above, to download one of the blood pressure traits, you need to set both: <br/>
 <code>"download_pan_ukbb.phenocode": ["DBP"]</code> <br/>
 <code>"download_pan_ukbb.modifier": ["combined_medadj_raw"]</code> <br/>
-because the particular trait is uniquely identified in the phenotype manifest by this phenocode and modifier. Note that we can still leave "coding" empty because it is not needed to identify this trait.
+because this particular trait is uniquely identified in the phenotype manifest by this phenocode and modifier. Note that we can still leave "coding" empty because it is not needed to identify this trait.
 
 #### 6. population
 
@@ -55,7 +55,7 @@ If you know the concept ID of the trait you are downloading, please specify it h
 
 #### 8. disk_gb
 
-If you encounter an error regarding disk space, i.e. the instance does not have enough memory to save the raw and processed data, then you can manually increase disk space here. For most purposes, the default will suffice.
+If you encounter an error regarding disk space, i.e. the instance does not have enough space to save both the raw and processed data, then you can manually increase disk space here. For most purposes, the default will suffice.
 
 #### 9. mem_gb
 
