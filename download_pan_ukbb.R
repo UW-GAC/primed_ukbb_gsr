@@ -102,35 +102,35 @@ rm(list = c("hour_timeout"))
 read_AWS <- function(url, save_location){
   # index the system time when function started
   start_time <- Sys.time()
-  
+
   # identify the file name
   file_name <- gsub("\\..*", "", basename(url))
-  
+
   # label file path
   file_path <- paste0(file_name, ".gz", collapse = "")
-  
+
   # download compressed .tsv file from Pan-UK Biobank's file on AWS
   curl_download(url = url,
                 destfile = file_path,
                 mode = "wb",
                 quiet = TRUE)
-    
+
   # STATUS
   message("Downloaded compressed .tsv file.")
-  
+
   # read in the decompressed file as tsv
   data <- fread(file = file_path,
                 sep = "\t",
                 header = TRUE,
                 nrows = Inf,
                 stringsAsFactors = FALSE)
-  
+
   # STATUS
   message("Read in .tsv file.")
-  
+
   # STATUS
   message("Completed in ", round(difftime(Sys.time(), start_time, units = "mins"), 0), " minutes.")
-  
+
   return(data)
 }
 
@@ -176,12 +176,12 @@ which_sampsize <- function(x){
                  "MID" = "Middle Eastern ancestry",
                  "AMR" = "Admixed American ancestry")
   if (any(x == names(pop_names))) {
-    
+
     n_controls <- unname(unlist(c(phenotype_info)[paste0("n_controls_", x)]))
     n_cases <- unname(unlist(c(phenotype_info)[paste0("n_cases_", x)]))
-    
+
   } else if (x == "meta") {
-    
+
     pops_in_meta <- str_split(unlist(c(phenotype_info)["pops"]), ",")
     n_controls <- sum(unlist(sapply(pops_in_meta,
                                     function(y){c(phenotype_info)[paste0("n_controls_", y)]})))
@@ -190,9 +190,9 @@ which_sampsize <- function(x){
     if (n_cases != phenotype_info$n_cases_full_cohort_both_sexes) {
       warning("The number of cases calculated does not match the number of cases stated.")
     }
-    
+
   } else if (x == "metaHQ"){
-    
+
     pops_in_metaHQ <- str_split(unlist(c(phenotype_info)["pops_pass_qc"]), ",")
     n_controls <- sum(unlist(sapply(pops_in_metaHQ,
                                     function(y){c(phenotype_info)[paste0("n_controls_", y)]})))
@@ -201,15 +201,15 @@ which_sampsize <- function(x){
     if (n_cases != phenotype_info$n_cases_hq_cohort_both_sexes) {
       warning("The number of cases calculated does not match the number of cases stated.")
     }
-    
+
   } else {
     stop("Error: you identified a population that does not exist.")
   }
-  
+
   # make sure NULL or NA values are set to 0 to not interfere with addition
   n_controls <- ifelse(is.numeric(n_controls), n_controls, 0)
   n_cases <- ifelse(is.numeric(n_cases), n_cases, 0)
-  
+
   if (phenotype_is_binary) {
     return(list("n_ctrl" = n_controls,
                 "n_case" = n_cases,
@@ -260,7 +260,9 @@ head(data_VMF)
 
 # identify if the phenotype is binary
 for (q in 1:nrow(input_grid)) {
-  
+
+  message(sprintf("Operating on %s/%s record(s)", 1, nrow(input_grid)))
+
   # use inputs to search for one single phenotype of interest
   find_phenocode <- manifest$phenocode %in% input_grid[q, "phenocode"]
   find_coding    <- manifest$coding %in% input_grid[q, "coding"]
@@ -276,19 +278,19 @@ for (q in 1:nrow(input_grid)) {
   }
   phenotype_info <- manifest[my_filter, ]
   rm(list = c("my_filter", "find_phenocode", "find_coding", "find_modifier"))
-  
+
   # check to make sure only one phenotype matches the input
   if (nrow(phenotype_info) == 0) {
     stop("No phenotypes match the provided phenocode/coding/modifier list.")
   } else if (nrow(phenotype_info) > 1) {
     stop("Multiple phenotypes match the provided phenocode/coding/modifier list.")
   }
-  
+
   # label key information about the phenotype
   phenotype_name <- phenotype_info$description
   coding_name <- phenotype_info$coding_description
   phenotype_is_binary <- which_trait_type(phenotype_info$trait_type) == "binary"
-  
+
   # Label step of the download
   print(paste0("Beginning download of <", phenotype_name, "> dataset from Pan UKBB."))
 
@@ -298,80 +300,84 @@ for (q in 1:nrow(input_grid)) {
   data_PHE <- read_AWS(url_PHE)
   rm(list = c("url_PHE"))
   print(head(data_PHE))
-  
-  
+
+
   # check for unique matching ID
   print(colnames(data_PHE)[1:4])
   print(colnames(data_VMF)[1:4])
-  
-  
+
+
   # merge the per-phenotype data with the variant manifest file to get RSID
   data_PHE <- merge(x = data_PHE, y = data_VMF[, c("chrom", "pos", "ref", "alt", "rsid", "info")],
                     by.x = c("chr",   "pos", "ref", "alt"),
                     by.y = c("chrom", "pos", "ref", "alt"),
                     all.x = TRUE, sort = FALSE)
   print(head(data_PHE))
-  
-  
+
+
   ############################
   # variable transformations #
   ############################
-  
-  # remove log base 10 transformation of p-value  
+
+  # remove log base 10 transformation of p-value
   neglog10_cols <- colnames(data_PHE)[grepl("neglog10_pval", colnames(data_PHE))]
   untransform_cols <- gsub("neglog10_pval", "pval", neglog10_cols)
   data_PHE[, c(untransform_cols) := lapply(.SD, function(x){10^(-x)}), .SDcols = neglog10_cols]
   rm(list = c("neglog10_cols", "untransform_cols"))
-  
-  
+
+
   # list names in dataset by population
   meta_pop <- c("af_meta", "af_cases_meta", "af_controls_meta", "beta_meta", "se_meta", "pval_meta", "pval_heterogeneity", "neglog10_pval_meta")
   metaHQ_pop <- c("af_meta_hq", "af_cases_meta_hq", "af_controls_meta_hq", "beta_meta_hq", "se_meta_hq", "pval_meta_hq", "pval_heterogeneity_hq", "neglog10_pval_meta_hq")
   key_meta <- c("effect_allele_freq", "eaf_case", "eaf_ctrl", "beta", "se", "p_value", "heterogeneity_p_value", "p_value_log10")
-  
-  
+
+
   # identify which ancestry populations have data for that phenotype
   pop_list <- unlist(str_split(unlist(c(phenotype_info)["pops"]), ","))
   all_pop <- lapply(pop_list, function(x){paste(c("af_", "af_cases_", "af_controls_", "beta_", "se_", "pval_", "neglog10_pval_", "low_confidence_"), x, sep = "")})
   key_all <- c("effect_allele_freq", "eaf_case", "eaf_ctrl", "beta", "se", "p_value", "p_value_log10", NA)
-  
-  
+
+
   # create a list of meta, high-quality meta, and specific ancestry populations
   pop_col_subset <- append(list(meta_pop, metaHQ_pop), all_pop)
   names(pop_col_subset) <- c("meta", "metaHQ", pop_list)
-  
-  
+
+
   # if only a specific population is of interest, then only download data for that population
   if (!identical(population_list, "all_available")) {
     pop_col_subset <- pop_col_subset[intersect(unlist(population_list), names(pop_col_subset))]
   }
   rm(list = c("meta_pop", "metaHQ_pop", "pop_list", "all_pop"))
-  
-  
+
+
   # create dataset for each population of interest
   for (i in 1:length(pop_col_subset)) {
+
+
     # make a copy of the dataset
     data_temp <- copy(data_PHE)
-  
+
     # identify which population we are working with
     pop <- names(pop_col_subset)[i]
-    
+
+    message(sprintf("...population %s (%d/%d)", pop, i, length(pop_col_subset)))
+
     # set the variable key according to the population
     if (grepl("meta", pop)) {
       key <- key_meta
     } else {
       key <- key_all
     }
-    
+
     # identify which variables pertain to the dataset
     pop_vars <- pop_col_subset[[i]]
-    
+
     # make a key that returns either the matching value or NA
     L0NA <- function(x){
       y <- pop_vars[key == x]
       return(ifelse(length(y) > 0, y, NA))
     }
-    
+
     # rename the population subset of phenotype data to match PRIMED GSR DD
     rename <- c(
       SNPID = NA,
@@ -407,43 +413,43 @@ for (q in 1:nrow(input_grid)) {
       heterogeneity_I2 = NA
     )
     rm(list = c("pop_vars", "L0NA"))
-    
-    
+
+
     # create duplicate columns for ref and alt since it is used twice
     data_temp[, ':='(ref2 = ref,
                      alt2 = alt)]
-    
-    
+
+
     # rename the dataset to match PRIMED notation
     setnames(data_temp,
              old = unname(rename[!is.na(rename)]),
              new =  names(rename[!is.na(rename)]),
              skip_absent = TRUE)
-    
-    
+
+
     # subset to only columns in the rename field population
     data_temp <- data_temp[, intersect(names(rename), colnames(data_temp)), with = FALSE]
     rm(list = "key")
-    
-    
+
+
     # remove all rows where the p-value is NA
     print(head(data_temp)); print(dim(data_temp))
     data_temp <- subset(data_temp, !is.na(data_temp$p_value))
     print(head(data_temp)); print(dim(data_temp))
-    
-    
+
+
     # if data is completely empty, skip to the next population
     if (nrow(data_temp) == 0 | ncol(data_temp) == 0) {
       print(paste("The dataset is empty for", pop, "with phenotype", phenotype_name, coding_name))
       next
     }
-    
-    
+
+
     # construct 95% confidence intervals
     data_temp[, ':='(beta_ci_lower = beta + qnorm(0.025) * se,
                      beta_ci_upper = beta + qnorm(0.975) * se)]
-    
-    
+
+
     # if the phenotype is binary, compute the odds ratio and corresponding confidence intervals
     if (phenotype_is_binary) {
       data_temp[, ':='(odds_ratio  = exp(beta),
@@ -451,45 +457,45 @@ for (q in 1:nrow(input_grid)) {
                        OR_ci_upper = exp(beta_ci_upper),
                        effect_allele_freq = (which_sampsize(pop)$weight_case * eaf_case) + (which_sampsize(pop)$weight_ctrl * eaf_ctrl))]
     }
-    
-    
+
+
     # create new column for DNA strand
     data_temp[, ':='(strand = "forward")]
-    
-    
+
+
     # create new column for SNPID
     data_temp[, ':='(SNPID = paste(chromosome, position, other_allele, effect_allele, sep = ":"))]
-    
-    
+
+
     # direction of the beta estimate (code will not pass validation if exactly equal to 0)
     data_temp[, ':='(direction_of_effect = ifelse(beta < 0, "-",
                                                  ifelse(beta > 0, "+", "0")))]
     if (any(data_temp$direction_of_effect %in% "0")) {
       stop('Beta estimate is exactly equal to 0, so sign is neither "-" or "+"')
     }
-    
-    
+
+
     # put in the order of the data dictionary
     ddorder <- c(names(rename)[names(rename) %in% colnames(data_temp)], # order of columns in data dictionary
                  setdiff(colnames(data_temp), names(rename))) # columns not present in data dictionary
     setcolorder(data_temp, ddorder)
     rm(list = c("ddorder", "rename"))
-    
-    
+
+
     # remove all entirely missing columns
     print(dim(data_temp))
     empty_cols <- names(which(colSums(is.na(data_temp)) == nrow(data_temp)))
     if (length(empty_cols) > 0) {
-      data_temp[, (empty_cols) := NULL]    
+      data_temp[, (empty_cols) := NULL]
     }
     rm(list = c("empty_cols"))
     print(dim(data_temp))
-    
-    
+
+
     ###############################################################
     ### run the analysis and file workflows for this population ###
     ###############################################################
-    
+
     fields <- list(
       "gsr_source" = "Pan UKBB",
       "gsr_source_url" = "https://pan.ukbb.broadinstitute.org/",
@@ -549,16 +555,16 @@ for (q in 1:nrow(input_grid)) {
       "countries_of_birth" = NA,
       "analysis_method" = ifelse(phenotype_is_binary, "logistic mixed model", "linear mixed model"), # https://pan.ukbb.broadinstitute.org/docs/technical-overview
       "analysis_software" = "SAIGE implemented in Hail Batch")
-    
+
     analysis <- tibble(field = names(fields),
                        value = unlist(fields))
-    
-    
+
+
     ###################
     ## validate data ##
     ###################
-    
-    
+
+
     # confirm required columns in the data model
     required <- c("chromosome", "position", "strand", "effect_allele", "other_allele",
                   "effect_allele_freq", "p_value", "beta", "se")
@@ -577,8 +583,8 @@ for (q in 1:nrow(input_grid)) {
       stop("Workflow determined that the PRIMED data validation steps will fail.")
     }
     rm(list = c("required"))
-    
-    
+
+
     # confirm required fields in the analysis table
     required <- c("gsr_source", "consent_code", "upload_date", "contributor_contact", "trait", "trait_type",
                   "trait_unit", "trait_transformation", "trait_definition", "covariates", "concept_id",
@@ -598,42 +604,42 @@ for (q in 1:nrow(input_grid)) {
     }
     analysis <- analysis[!is.na(analysis$value) | c(analysis$field %in% required), ]
     rm(list = c("required"))
-    
-    
+
+
     #################
     ## save output ##
     #################
-    
-    
+
+
     # save the analysis table
     outfile2 <- paste0(gsub(" ", "", phe_cod_mod[q]), "_", pop, "_analysis.tsv")
     fwrite(analysis, outfile2, sep = "\t")
-    
-    
+
+
     # save the dataset and file tables split by chromosome
     setkey(data_temp, chromosome)
-    
-    
+
+
     # print first 5 rows of dataset before saving it
     print(head(data_temp))
-    
-    
+
+
     # establish the file table with rows matching the number of unique chromosomes
     unique_chr <- unique(data_temp$chromosome); print(unique_chr)
     file_table <- matrix(data = NA, nrow = length(unique_chr), ncol = 5)
     colnames(file_table) <- c("md5sum", "file_path", "file_type", "n_variants", "chromosome")
     file_table <- as_tibble(file_table)
-    
-    
+
+
     for (chr in 1:length(unique_chr)) {
       # print the subsetted data
       dim(data_temp[as.character(unique_chr[chr])])
-      
+
       # save the wrangled data
       outfile1 <- paste0(gsub(" ", "", phe_cod_mod[q]), "_", pop, "_", unique_chr[chr], "_data.tsv.gz")
       fwrite(data_temp[as.character(unique_chr[chr])], outfile1, sep = "\t") # save to the local directory
-      
-      
+
+
       # enter population/chromosome specific information into the file table
       file_table[chr, ] <- list(md5sum     = md5sum(files = outfile1),
                                 file_path  = file.path("gs:/", bucket_name, "UKBB-Data", phe_cod_mod[q], outfile1),
@@ -641,17 +647,17 @@ for (q in 1:nrow(input_grid)) {
                                 n_variants = nrow(data_temp[as.character(unique_chr[chr])]),
                                 chromosome = unique_chr[chr])
     }
-    
-    
+
+
     # save the file table
     outfile3 <- paste0(gsub(" ", "", phe_cod_mod[q]), "_", pop, "_file.tsv")
     fwrite(file_table, outfile3, sep = "\t")
-    
-    
+
+
     # clear out the things that change with the dataset
     rm(list = c("outfile1", "outfile2", "outfile3",
                 "pop", "data_temp", "fields", "analysis", "file_table", "chr", "unique_chr"))
   }
-  
+
   rm(list = c("data_PHE", "key_all", "key_meta", "pop_col_subset", "i", "phenotype_name", "phenotype_is_binary"))
 }
